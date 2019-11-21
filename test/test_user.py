@@ -40,3 +40,4 @@ class TestUser(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json().get('status'), 203)
         print(resp.json())
+
