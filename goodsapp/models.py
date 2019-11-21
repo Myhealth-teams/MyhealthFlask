@@ -1,5 +1,5 @@
 # coding: utf-8
-from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String, VARBINARY
+from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -34,7 +34,7 @@ class Good(Base):
     __tablename__ = 'goods'
 
     goods_id = Column(Integer, primary_key=True)
-    goods_name = Column(VARBINARY(50), nullable=False)
+    goods_name = Column(String(50))
     url = Column(String(256), nullable=False)
     price = Column(Float, nullable=False)
     medtype = Column(Integer, nullable=False)

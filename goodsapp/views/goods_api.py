@@ -25,7 +25,6 @@ def goods():
 def types():
     querys = db.session.query(Medtype).all()
     query = dumps(querys)
-
     return jsonify({
         "status": 200,
         "msg":"返回所有商品的类型",
@@ -38,14 +37,12 @@ def types():
 def choice():
     data = request.get_json()
     typeid = data.get("typeid")
-    querys = db.session.query(Good).filter(Good.medtype==typeid).all()
+    querys = db.session.query(Good).filter(Good.medtype == typeid).all()
     query = dumps(querys)
-
-
     return jsonify({
         "status":200,
         "msg":"返回该类型商品！",
         "data":{
-            "goods":query
+            "goods": query
         }
     })
