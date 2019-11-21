@@ -1,11 +1,24 @@
 # coding: utf-8
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String, VARBINARY
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
 
 Base = declarative_base()
 metadata = Base.metadata
+
+
+class Cart(Base):
+    __tablename__ = 'carts'
+
+    c_id = Column(Integer, primary_key=True)
+    u_id = Column(ForeignKey('users.id'), index=True)
+    goods_id = Column(ForeignKey('goods.goods_id'), index=True)
+    c_goods_num = Column(Integer, nullable=False)
+    c_is_selected = Column(Integer, nullable=False)
+
+    goods = relationship('Good', primaryjoin='Cart.goods_id == Good.goods_id', backref='carts')
+    u = relationship('User', primaryjoin='Cart.u_id == User.id', backref='carts')
 
 
 class DjangoMigration(Base):
@@ -15,6 +28,17 @@ class DjangoMigration(Base):
     app = Column(String(255), nullable=False)
     name = Column(String(255), nullable=False)
     applied = Column(DateTime, nullable=False)
+
+
+class Good(Base):
+    __tablename__ = 'goods'
+
+    goods_id = Column(Integer, primary_key=True)
+    goods_name = Column(VARBINARY(50), nullable=False)
+    url = Column(String(256), nullable=False)
+    price = Column(Float, nullable=False)
+    medtype = Column(Integer, nullable=False)
+    standards = Column(String(30), nullable=False)
 
 
 class Rotation(Base):
