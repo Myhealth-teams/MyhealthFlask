@@ -21,6 +21,17 @@ class Cart(Base):
     u = relationship('User', primaryjoin='Cart.u_id == User.id', backref='carts')
 
 
+class DiscountGood(Base):
+    __tablename__ = 'discount_goods'
+
+    dg_id = Column(Integer, primary_key=True, unique=True)
+    dg_name = Column(String(50))
+    dg_url = Column(String(256))
+    dg_price = Column(Float)
+    dg_newprice = Column(Float)
+    dg_type = Column(Integer)
+
+
 class DjangoMigration(Base):
     __tablename__ = 'django_migrations'
 
@@ -45,7 +56,7 @@ class Good(Base):
 class Infomation(Base):
     __tablename__ = 'infomation'
 
-    i_id = Column(Integer, primary_key=True)
+    i_id = Column(Integer, primary_key=True, unique=True)
     titile = Column(String(50))
     content = Column(String(200))
 
@@ -79,7 +90,7 @@ class SysRole(Base):
     __tablename__ = 'sys_role'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(50), nullable=False, unique=True)
+    name = Column(String(50), nullable=False)
     code = Column(String(20), nullable=False, unique=True)
 
 
