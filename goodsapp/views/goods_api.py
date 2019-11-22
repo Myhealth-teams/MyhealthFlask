@@ -3,7 +3,7 @@ from flask import Blueprint
 
 import db
 from db.serializers import dumps
-from goodsapp.models import Good, Medtype
+from models import Good, Medtype
 
 goods_blue = Blueprint("goods_blue",__name__)
 
@@ -27,7 +27,7 @@ def types():
     query = dumps(querys)
     return jsonify({
         "status": 200,
-        "msg":"返回所有商品的类型",
+        "msg":"获取所有商品类型成功",
         "data": {
             "goodstype": query
         }
@@ -41,7 +41,7 @@ def choice():
     query = dumps(querys)
     return jsonify({
         "status":200,
-        "msg":"返回该类型商品！",
+        "msg":"查询该分类所有商品成功",
         "data":{
             "goods": query
         }

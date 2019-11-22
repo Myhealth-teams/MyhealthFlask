@@ -5,7 +5,7 @@
 
 
 from common.token_ import new_token
-from mainapp.models import User
+from models import User
 from common.encrypt import encode4md5
 import db
 from flask import Blueprint, jsonify, request
@@ -22,14 +22,14 @@ def send():
         phone = req_data['u_tel']
     except:
         return jsonify({
-            'status': 401,
+            'status': 400,
             'msg': '请求参数错误'
         })
     else:
         code = send_code(phone)
         r.set(phone, code, ex=120)
         return jsonify({
-            'status': 201,
+            'status': 200,
             'msg': '获取验证码成功'
         })
 
@@ -41,7 +41,7 @@ def register():
         phone, passwd, code = req_data['u_tel'], req_data['u_password'], req_data['u_code']
     except:
         return jsonify({
-            'status': 401,
+            'status': 400,
             'msg': '请求参数错误'
         })
     else:
@@ -50,7 +50,7 @@ def register():
             result = r.ttl(phone)
             if not result:
                 return jsonify({
-                    'status': 303,
+                    'status': 300,
                     'msg': '验证码已过期'
                 })
             else:
@@ -62,17 +62,17 @@ def register():
                     db.session.add(new_user)
                     db.session.commit()
                     return jsonify({
-                        'status': 202,
+                        'status': 200,
                         'msg': '注册成功'
                     })
                 else:
                     return jsonify({
-                        'status': 403,
+                        'status': 400,
                         'msg': '验证码错误'
                     })
         else:
             return jsonify({
-                'status': 301,
+                'status': 300,
                 'msg': '手机号已存在'
             })
 
@@ -88,14 +88,14 @@ def login():
     except Exception as e:
         print(e)
         return jsonify({
-            'status': 401,
+            'status': 400,
             'msg': '请求参数错误'
         })
     else:
         query = db.session.query(User).filter(User.u_tel == phone)
         if query.count() == 0:
             return jsonify({
-                'status': 302,
+                'status': 300,
                 'msg': '查无此用户'
             })
         else:
@@ -104,7 +104,7 @@ def login():
                 token = new_token()
                 #
                 return jsonify({
-                    'status': 203,
+                    'status': 200,
                     'msg': '登陆成功',
                     'token': token,
                     'data': {
@@ -116,6 +116,6 @@ def login():
                 })
             else:
                 return jsonify({
-                    'status': 501,
+                    'status': 500,
                     'msg': '登录失败，用户名或密码错误'
                 })

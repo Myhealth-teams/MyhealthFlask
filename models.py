@@ -1,5 +1,5 @@
 # coding: utf-8
-from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String, VARBINARY
+from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -34,46 +34,71 @@ class Good(Base):
     __tablename__ = 'goods'
 
     goods_id = Column(Integer, primary_key=True)
-    goods_name = Column(VARBINARY(50), nullable=False)
+    goods_name = Column(String(50))
     url = Column(String(256), nullable=False)
     price = Column(Float, nullable=False)
     medtype = Column(Integer, nullable=False)
     standards = Column(String(30), nullable=False)
+    detial = Column(String(256))
 
 
-class Rotation(Base):
-    __tablename__ = 'rotations'
+class Infomation(Base):
+    __tablename__ = 'infomation'
 
-    id = Column(Integer, primary_key=True)
+    i_id = Column(Integer, primary_key=True)
+    titile = Column(String(50))
+    content = Column(String(200))
+
+
+class Medtype(Base):
+    __tablename__ = 'medtypes'
+
+    m_id = Column(Integer, primary_key=True)
+    typenum = Column(Integer, nullable=False)
+    medname = Column(String(50), nullable=False)
+
+
+class RotationStatu(Base):
+    __tablename__ = 'rotation_status'
+
+    rs_id = Column(Integer, primary_key=True)
+    ro_id = Column(ForeignKey('rotatitons.ro_id'), index=True)
+    rs_name = Column(String(10), nullable=False)
+
+    ro = relationship('Rotatiton', primaryjoin='RotationStatu.ro_id == Rotatiton.ro_id', backref='rotation_status')
+
+
+class Rotatiton(Base):
+    __tablename__ = 'rotatitons'
+
+    ro_id = Column(Integer, primary_key=True)
     url = Column(String(256), nullable=False)
 
 
 class SysRole(Base):
     __tablename__ = 'sys_role'
 
-    role_id = Column(Integer, primary_key=True)
-    role_name = Column(String(50), nullable=False)
-    role_code = Column(String(20), nullable=False)
+    id = Column(Integer, primary_key=True)
+    name = Column(String(50), nullable=False, unique=True)
+    code = Column(String(20), nullable=False, unique=True)
 
 
 class SysUser(Base):
     __tablename__ = 'sys_user'
 
-    sy_id = Column(Integer, primary_key=True)
-    sy_name = Column(String(50))
-    auth_string = Column(String(100))
+    id = Column(Integer, primary_key=True)
+    name = Column(String(50), nullable=False, unique=True)
+    auth_string = Column(String(100), nullable=False)
     email = Column(String(50))
+    phone = Column(String(50))
 
 
 class SysUserRole(Base):
     __tablename__ = 'sys_user_role'
 
-    sr_id = Column(Integer, primary_key=True)
-    role_id = Column(ForeignKey('sys_role.role_id'), index=True)
-    sy_id = Column(ForeignKey('sys_user.sy_id'), index=True)
-
-    role = relationship('SysRole', primaryjoin='SysUserRole.role_id == SysRole.role_id', backref='sys_user_roles')
-    sy = relationship('SysUser', primaryjoin='SysUserRole.sy_id == SysUser.sy_id', backref='sys_user_roles')
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer)
+    role_id = Column(Integer)
 
 
 class User(Base):

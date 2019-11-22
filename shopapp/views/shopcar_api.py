@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 import db
 
-from shopapp.models import Cart
+from models import Cart
 
 shopcar_blue = Blueprint("shopcar_blue",__name__)
 
@@ -13,7 +13,7 @@ def add_cart():
         g_id = request_data["goods_id"]
     except:
         return jsonify({
-            'status': 401,
+            'status': 400,
             'msg': '添加购物车失败！'
         })
     try:
@@ -23,7 +23,6 @@ def add_cart():
             g_num = 1
             is_select = False
             new_cart = Cart(u_id=u_id,goods_id=g_id,c_goods_num=g_num,c_is_selected=is_select)
-            print(new_cart.u_id)
             db.session.add(new_cart)
             db.session.commit()
         else:
@@ -49,7 +48,7 @@ def sub_cart():
         g_id = request_data["goods_id"]
     except:
         return jsonify({
-            'status': 401,
+            'status': 400,
             'msg': '删除购物车失败！'
         })
     try:
