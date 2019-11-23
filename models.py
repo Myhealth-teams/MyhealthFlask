@@ -58,7 +58,7 @@ class Infomation(Base):
 
     i_id = Column(Integer, primary_key=True, unique=True)
     titile = Column(String(50))
-    content = Column(String(200))
+    content = Column(String(10000))
 
 
 class Medtype(Base):
