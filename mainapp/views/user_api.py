@@ -2,9 +2,8 @@
 # -*-coding:UTF-8-*-
 # __author__ = pighui
 # __time__ = 2019-11-20 上午9:25
-import os
+
 import uuid
-from _sha1 import sha1
 from settings import BASE_DIR
 from common.file import change_filename, base64_to_bytes, save_file
 from common.token_ import new_token
@@ -153,7 +152,7 @@ def forget_pwd():
                     db.session.commit()
                     return jsonify({
                         'status': 200,
-                        'msg': '修改密码成功'
+                        'msg': '重置密码成功'
                     })
                 else:
                     return jsonify({
@@ -217,10 +216,9 @@ def head_image():
             savepath = "/static/imgs/"
             uuid_str = uuid.uuid4().hex
             filename = change_filename(uuid_str)
-            filepath = BASE_DIR + savepath + filename
+            filepath = BASE_DIR + savepath
             file = base64_to_bytes(upload_file)
             save_file(filepath,filename,file)
-            print(file,'\n',filepath,'\n',filename)
         except:
             return jsonify({
                 'status': 500,

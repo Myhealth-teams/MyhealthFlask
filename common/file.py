@@ -3,6 +3,7 @@
 # __author__ = pighui
 # __time__ = 2019-11-23 下午2:45
 import base64
+import uuid
 from _sha1 import sha1
 
 

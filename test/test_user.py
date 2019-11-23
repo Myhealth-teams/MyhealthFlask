@@ -7,7 +7,7 @@ from unittest import TestCase
 
 import requests
 
-base_url = 'http://127.0.0.1:5000/user/'
+base_url = 'http://122.112.231.109:5000/user/'
 
 
 class TestUser(TestCase):
@@ -43,7 +43,7 @@ class TestUser(TestCase):
     #     print(resp.json())
     def test_head(self):
         url = base_url + 'head/'
-        with open('shuai.jpg', 'rb') as f:
+        with open('mei.jpg', 'rb') as f:
             file = f.read()  # 二进制字节
         print(file)
         bytes_to_base64 = base64.b64encode(file).decode() # 将二进制字节编码为base64字符串
@@ -51,7 +51,7 @@ class TestUser(TestCase):
         base64_to_bytes = base64.b64decode(bytes_to_base64) #将base64字符串解码为二进制字节
         print(base64_to_bytes)
         data = {
-            "u_id":6,
+            "u_id":5,
             'files': bytes_to_base64
         }
         response = requests.post(url,json=data)
