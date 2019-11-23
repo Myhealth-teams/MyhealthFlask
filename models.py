@@ -1,6 +1,7 @@
 # coding: utf-8
 from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+from sqlalchemy.schema import FetchedValue
 from sqlalchemy.ext.declarative import declarative_base
 
 
@@ -19,6 +20,16 @@ class Cart(Base):
 
     goods = relationship('Good', primaryjoin='Cart.goods_id == Good.goods_id', backref='carts')
     u = relationship('User', primaryjoin='Cart.u_id == User.id', backref='carts')
+
+
+class City(Base):
+    __tablename__ = 'city'
+
+    cityid = Column(Integer, primary_key=True, unique=True)
+    provinceid = Column(ForeignKey('province.provinceid'), index=True)
+    cityname = Column(String(45))
+
+    province = relationship('Province', primaryjoin='City.provinceid == Province.provinceid', backref='cities')
 
 
 class DiscountGood(Base):
@@ -41,6 +52,21 @@ class DjangoMigration(Base):
     applied = Column(DateTime, nullable=False)
 
 
+class Doctor(Base):
+    __tablename__ = 'doctors'
+
+    d_id = Column(Integer, primary_key=True, unique=True)
+    room_id = Column(ForeignKey('room.room_id'), index=True)
+    d_name = Column(String(20))
+    d_relname = Column(String(20))
+    d_skill = Column(String(1000))
+    d_head = Column(String(200))
+    d_idcard = Column(String(20), server_default=FetchedValue())
+    d_cer = Column(String(256), server_default=FetchedValue())
+
+    room = relationship('Room', primaryjoin='Doctor.room_id == Room.room_id', backref='doctors')
+
+
 class Good(Base):
     __tablename__ = 'goods'
 
@@ -51,6 +77,19 @@ class Good(Base):
     medtype = Column(Integer, nullable=False)
     standards = Column(String(30), nullable=False)
     detial = Column(String(256))
+
+
+class Hospital(Base):
+    __tablename__ = 'hospitals'
+
+    h_id = Column(Integer, primary_key=True, unique=True)
+    cityid = Column(ForeignKey('city.cityid'), index=True)
+    hname = Column(String(50))
+    haddress = Column(String(100))
+    hgrade = Column(String(20))
+    htext = Column(String(200))
+
+    city = relationship('City', primaryjoin='Hospital.cityid == City.cityid', backref='hospitals')
 
 
 class Infomation(Base):
@@ -67,6 +106,23 @@ class Medtype(Base):
     m_id = Column(Integer, primary_key=True)
     typenum = Column(Integer, nullable=False)
     medname = Column(String(50), nullable=False)
+
+
+class Province(Base):
+    __tablename__ = 'province'
+
+    provinceid = Column(Integer, primary_key=True, unique=True)
+    provincename = Column(String(20))
+
+
+class Room(Base):
+    __tablename__ = 'room'
+
+    room_id = Column(Integer, primary_key=True, unique=True)
+    h_id = Column(ForeignKey('hospitals.h_id'), index=True)
+    roomname = Column(String(45))
+
+    h = relationship('Hospital', primaryjoin='Room.h_id == Hospital.h_id', backref='rooms')
 
 
 class RotationStatu(Base):
