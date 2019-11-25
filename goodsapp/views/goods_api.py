@@ -50,14 +50,14 @@ def types():
 def choice():
     try:
         req_data = request.get_json()
-        m_id = req_data['m_id']
+        typenum = req_data['typenum']
     except:
         return jsonify({
             'status': 400,
             'msg': '请求参数错误'
         })
     else:
-        query = db.session.query(Good).filter(Good.medtype == m_id)
+        query = db.session.query(Good).filter(Good.medtype == typenum)
         if query.count() != 0:
             data = dumps(query.all())
             return jsonify({
