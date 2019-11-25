@@ -192,28 +192,34 @@ def forget_pwd():
 def new_pwd():
     try:
         req_data = request.get_json()
-        u_id, u_passwd, new_password = req_data['u_id'], req_data['u_password'], req_data['new_password']
+        u_tel, u_passwd, new_password = req_data['u_tel'], req_data['u_password'], req_data['new_password']
     except:
         return jsonify({
             'status': 400,
             'msg': '请求参数错误'
         })
     else:
-        query = db.session.query(User).filter(User.id == u_id)
-        old_password = encode4md5(u_passwd)
-        user = query.first()
-        if old_password != user.u_password:
-            return jsonify({
-                'status': 400,
-                'msg': '旧密码错误'
-            })
+        query = db.session.query(User).filter(User.u_tel == u_tel)
+        if query.count() !=0:
+            user = query.first()
+            old_password = encode4md5(u_passwd)
+            if old_password != user.u_password:
+                return jsonify({
+                    'status': 400,
+                    'msg': '旧密码错误'
+                })
+            else:
+                new_pwd = encode4md5(new_password)
+                user.u_password = new_pwd
+                db.session.commit()
+                return jsonify({
+                    'status': 200,
+                    'msg': '修改密码成功'
+                })
         else:
-            new_pwd = encode4md5(new_password)
-            user.u_password = new_pwd
-            db.session.commit()
             return jsonify({
-                'status': 200,
-                'msg': '修改密码成功'
+                'status': 300,
+                'msg':"手机号错误"
             })
 
 
