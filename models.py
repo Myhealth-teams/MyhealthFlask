@@ -74,7 +74,7 @@ class Good(Base):
     goods_name = Column(String(50))
     url = Column(String(256), nullable=False)
     price = Column(Float, nullable=False)
-    medtype = Column(Integer, nullable=False)
+    medtype = Column(Integer, nullable=False, index=True)
     standards = Column(String(30), nullable=False)
     detial = Column(String(256))
 
@@ -166,6 +166,23 @@ class SysUserRole(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer)
     role_id = Column(Integer)
+
+
+class UserAddres(Base):
+    __tablename__ = 'user_address'
+
+    a_id = Column(Integer, primary_key=True, unique=True)
+    id = Column(ForeignKey('users.id'), index=True)
+    provinceid = Column(ForeignKey('province.provinceid'), index=True)
+    cityid = Column(ForeignKey('city.cityid'), index=True)
+    user_name = Column(String(20))
+    user_tel = Column(String(11))
+    detail_address = Column(String(200))
+    is_default = Column(Integer)
+
+    city = relationship('City', primaryjoin='UserAddres.cityid == City.cityid', backref='user_address')
+    user = relationship('User', primaryjoin='UserAddres.id == User.id', backref='user_address')
+    province = relationship('Province', primaryjoin='UserAddres.provinceid == Province.provinceid', backref='user_address')
 
 
 class User(Base):

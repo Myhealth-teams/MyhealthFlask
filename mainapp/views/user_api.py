@@ -4,10 +4,12 @@
 # __time__ = 2019-11-20 上午9:25
 
 import uuid
+
+from db.serializers import dumps
 from settings import BASE_DIR
 from common.file import change_filename, base64_to_bytes, save_file
 from common.token_ import new_token
-from models import User
+from models import User, UserAddres
 from common.encrypt import encode4md5
 import db
 from flask import Blueprint, jsonify, request
@@ -201,8 +203,8 @@ def new_pwd():
 def head_image():
     try:
         data = request.get_json()
-        u_id = data.get('u_id')
-        upload_file = data.get('files')
+        u_id = data['u_id']
+        upload_file = data['files']
         print(u_id)
         print(upload_file)
     except:
@@ -242,3 +244,81 @@ def head_image():
                     "status": 300,
                     'msg': "查无此用户"
                 })
+# 获取用户所有收货地址的接口
+@user_blue.route('/all_address/', methods=('GET',))
+def get_address():
+    try:
+        data = request.get_json()
+        u_id = data['id']
+    except:
+        return jsonify({
+            'status': 400,
+            'msg': '请求参数错误'
+        })
+    else:
+        query = db.session.query(UserAddres).filter(UserAddres.id == u_id)
+        if query.count()!=0:
+            all_addr = dumps(query.all())
+            return jsonify({
+                'status':200,
+                'msg':'获取用户所有收货地址成功',
+                'data':all_addr
+            })
+        else:
+            return jsonify({
+                'status':300,
+                "msg":'该用户暂无收货地址'
+            })
+# 用户添加收货地址的接口
+@user_blue.route('/add_address/', methods=('POST',))
+def add_address():
+    try:
+        data = request.get_json()
+        u_id,p_id,c_id,d_addr,u_name,u_tel,is_default = data['id'],data['provinceid'], data['cityid'],data['detail_address'],data['user_name'],data['user_tel'],data['is_default']
+    except:
+        return jsonify({
+            'status': 400,
+            'msg':'请求参数错误'
+        })
+    else:
+        query = db.session.query(User).filter(User.id==u_id)
+        if query.count() != 0:
+            new_address = UserAddres(id=u_id,provinceid=p_id,cityid=c_id,user_name=u_name,user_tel=u_tel,detail_address=d_addr,is_default=is_default)
+            db.session.add(new_address)
+            db.session.commit()
+            return jsonify({
+                'status':200,
+                'msg':"添加收货地址成功"
+            })
+        else:
+            return jsonify({
+                'status':300,
+                'msg':'查无此用户'
+            })
+
+# 用户修改收货地址的接口
+@user_blue.route('/alter_address/', methods=('GET',))
+def alter_address():
+    try:
+        data = request.get_json()
+        a_id,u_id,p_id,c_id,d_addr,u_name,u_tel,is_default = data['a_id'],data['id'],data['provinceid'], data['cityid'],data['detail_address'],data['user_name'],data['user_tel'],data['is_default']
+    except:
+        return jsonify({
+            'status': 400,
+            'msg':'请求参数错误'
+        })
+    else:
+        query = db.session.query(UserAddres).filter(UserAddres.a_id==a_id)
+        if query.count() != 0:
+            addr = query.first()
+            addr.update({UserAddres.province:p_id,UserAddres.cityid:c_id,UserAddres.detail_address:d_addr,UserAddres.user_name:u_name,UserAddres.user_tel:u_tel,UserAddres.is_default:is_default})
+            db.session.commit()
+            return jsonify({
+                'status':200,
+                'msg':"修改收货地址成功"
+            })
+        else:
+            return jsonify({
+                'status':300,
+                'msg':'记录不存在'
+            })
