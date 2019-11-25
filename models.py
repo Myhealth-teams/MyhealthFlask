@@ -4,6 +4,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.schema import FetchedValue
 from sqlalchemy.ext.declarative import declarative_base
 
+
 Base = declarative_base()
 metadata = Base.metadata
 
@@ -96,9 +97,11 @@ class Good(Base):
     goods_name = Column(String(50))
     url = Column(String(256), nullable=False)
     price = Column(Float, nullable=False)
-    medtype = Column(Integer, nullable=False, index=True)
+    medtype = Column(ForeignKey('medtypes.m_id'), nullable=False, index=True)
     standards = Column(String(30), nullable=False)
     detial = Column(String(256))
+
+    medtype1 = relationship('Medtype', lazy='immediate', primaryjoin='Good.medtype == Medtype.m_id', backref='goods')
 
 
 class Hospital(Base):
@@ -204,8 +207,7 @@ class UserAddres(Base):
 
     city = relationship('City', lazy='immediate', primaryjoin='UserAddres.cityid == City.cityid', backref='user_address')
     user = relationship('User', lazy='immediate', primaryjoin='UserAddres.id == User.id', backref='user_address')
-    province = relationship('Province', lazy='immediate', primaryjoin='UserAddres.provinceid == Province.provinceid',
-                            backref='user_address')
+    province = relationship('Province', lazy='immediate', primaryjoin='UserAddres.provinceid == Province.provinceid', backref='user_address')
 
 
 class User(Base):
