@@ -154,14 +154,14 @@ def forget_pwd():
     else:
         query = db.session.query(User).filter(User.u_tel == u_phone)
         if query.count() != 0:
-            result = r.ttl(u_phone)
+            result = valid_code(u_phone)
             if not result:
                 return jsonify({
                     'status': 300,
                     'msg': '验证码已过期'
                 })
             else:
-                code = r.get(u_phone)
+                code = get_code(u_phone)
                 if code == u_code:
                     new_password = encode4md5(u_passwd)
                     user = query.first()
