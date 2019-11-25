@@ -21,7 +21,3 @@ def send_code(phone_number):
     print(str(response, encoding='utf-8'))
     # 返回code给后端
     return code
-
-if __name__ == '__main__':
-    code = send_code('18797367627')
-    print(code)
