@@ -15,7 +15,6 @@ from common.encrypt import encode4md5
 import db
 from flask import Blueprint, jsonify, request
 from common.aliyun_sms import send_code
-from common import r
 
 user_blue = Blueprint("user_blue", __name__)
 

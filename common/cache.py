@@ -21,7 +21,7 @@ def valid_token(token):
         return False
 
 def get_token(phone):
-    # 获取token绑定的id
+    # 获取用户的token
     token = r15.get(phone)
     return token
 
