@@ -8,35 +8,38 @@ from models import Good, Medtype
 goods_blue = Blueprint("goods_blue", __name__)
 
 
-@goods_blue.route("/allgoods/", methods=("GET",))
-def goods():
-    querys = db.session.query(Good)
-    if querys.count() != 0:
-        data = dumps(querys.all())
-        return jsonify({
-            "status": 200,
-            "msg": "查询所有商品成功",
-            "data": {
-                "allgoods": data
-            }
-        })
-    else:
-        return jsonify({
-            "status": 300,
-            "msg": "暂无数据",
-        })
+# @goods_blue.route("/allgoods/", methods=("GET",))
+# def goods():
+#     querys = db.session.query(Good)
+#     if querys.count() != 0:
+#         data = dumps(querys.all())
+#         return jsonify({
+#             "status": 200,
+#             "msg": "查询所有商品成功",
+#             "data": {
+#                 "allgoods": data
+#             }
+#         })
+#     else:
+#         return jsonify({
+#             "status": 300,
+#             "msg": "暂无数据",
+#         })
 
-
+# 获取所有商品和商品类型的接口
 @goods_blue.route('/goodstype/', methods=("GET",))
 def types():
-    querys = db.session.query(Medtype)
-    if querys.count() != 0:
-        data = dumps(querys.all())
+    query_medtype = db.session.query(Medtype)
+    qyery_goods = db.session.query(Good)
+    if all((query_medtype.count() != 0, qyery_goods.count() != 0)):
+        goods_type = dumps(query_medtype.all())
+        all_goods = dumps(qyery_goods.all())
         return jsonify({
             "status": 200,
             "msg": "获取所有商品类型成功",
             "data": {
-                "goodstype": data
+                "goodstype": goods_type,
+                "allgoods": all_goods
             }
         })
     else:
