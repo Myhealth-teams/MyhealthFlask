@@ -220,7 +220,7 @@ def head_image():
             filename = change_filename(uuid_str)
             filepath = BASE_DIR + savepath
             file = base64_to_bytes(upload_file)
-            save_file(filepath,filename,file)
+            save_file(filepath, filename, file)
         except:
             return jsonify({
                 'status': 500,
@@ -244,81 +244,95 @@ def head_image():
                     "status": 300,
                     'msg': "查无此用户"
                 })
+
+
 # 获取用户所有收货地址的接口
 @user_blue.route('/all_address/', methods=('GET',))
 def get_address():
+    u_id = request.args.get("id")
+    if not u_id:
+        return jsonify({
+            'status': 400,
+            'msg': '请求参数错误'
+        })
+    else:
+        query_user = db.session.query(User).filter(User.id == u_id)
+        if query_user.count() != 0:
+            query = db.session.query(UserAddres).filter(UserAddres.id == u_id)
+            if query.count() != 0:
+                all_addr = dumps(query.all())
+                return jsonify({
+                    'status': 200,
+                    'msg': '获取用户所有收货地址成功',
+                    'data': all_addr
+                })
+            else:
+                return jsonify({
+                    'status': 300,
+                    "msg": '该用户暂无收货地址'
+                })
+        else:
+            return jsonify({
+                'status': 500,
+                "msg": '查无此用户'
+            })
+
+
+# 用户添加收货地址的接口
+@user_blue.route('/add_address/', methods=('POST',))
+def add_address():
     try:
         data = request.get_json()
-        u_id = data['id']
+        u_id, p_id, c_id, d_addr, u_name, u_tel, is_default = data['id'], data['provinceid'], data['cityid'], data[
+            'detail_address'], data['user_name'], data['user_tel'], data['is_default']
     except:
         return jsonify({
             'status': 400,
             'msg': '请求参数错误'
         })
     else:
-        query = db.session.query(UserAddres).filter(UserAddres.id == u_id)
-        if query.count()!=0:
-            all_addr = dumps(query.all())
-            return jsonify({
-                'status':200,
-                'msg':'获取用户所有收货地址成功',
-                'data':all_addr
-            })
-        else:
-            return jsonify({
-                'status':300,
-                "msg":'该用户暂无收货地址'
-            })
-# 用户添加收货地址的接口
-@user_blue.route('/add_address/', methods=('POST',))
-def add_address():
-    try:
-        data = request.get_json()
-        u_id,p_id,c_id,d_addr,u_name,u_tel,is_default = data['id'],data['provinceid'], data['cityid'],data['detail_address'],data['user_name'],data['user_tel'],data['is_default']
-    except:
-        return jsonify({
-            'status': 400,
-            'msg':'请求参数错误'
-        })
-    else:
-        query = db.session.query(User).filter(User.id==u_id)
+        query = db.session.query(User).filter(User.id == u_id)
         if query.count() != 0:
-            new_address = UserAddres(id=u_id,provinceid=p_id,cityid=c_id,user_name=u_name,user_tel=u_tel,detail_address=d_addr,is_default=is_default)
+            new_address = UserAddres(id=u_id, provinceid=p_id, cityid=c_id, user_name=u_name, user_tel=u_tel,
+                                     detail_address=d_addr, is_default=is_default)
             db.session.add(new_address)
             db.session.commit()
             return jsonify({
-                'status':200,
-                'msg':"添加收货地址成功"
+                'status': 200,
+                'msg': "添加收货地址成功"
             })
         else:
             return jsonify({
-                'status':300,
-                'msg':'查无此用户'
+                'status': 300,
+                'msg': '查无此用户'
             })
 
+
 # 用户修改收货地址的接口
-@user_blue.route('/alter_address/', methods=('GET',))
+@user_blue.route('/alter_address/', methods=('POST',))
 def alter_address():
     try:
         data = request.get_json()
-        a_id,u_id,p_id,c_id,d_addr,u_name,u_tel,is_default = data['a_id'],data['id'],data['provinceid'], data['cityid'],data['detail_address'],data['user_name'],data['user_tel'],data['is_default']
+        a_id, u_id, p_id, c_id, d_addr, u_name, u_tel, is_default = data['a_id'], data['id'], data['provinceid'], data[
+            'cityid'], data['detail_address'], data['user_name'], data['user_tel'], data['is_default']
     except:
         return jsonify({
             'status': 400,
-            'msg':'请求参数错误'
+            'msg': '请求参数错误'
         })
     else:
-        query = db.session.query(UserAddres).filter(UserAddres.a_id==a_id)
+        query = db.session.query(UserAddres).filter(UserAddres.a_id == a_id)
         if query.count() != 0:
             addr = query.first()
-            addr.update({UserAddres.province:p_id,UserAddres.cityid:c_id,UserAddres.detail_address:d_addr,UserAddres.user_name:u_name,UserAddres.user_tel:u_tel,UserAddres.is_default:is_default})
+            addr.update({UserAddres.province: p_id, UserAddres.cityid: c_id, UserAddres.detail_address: d_addr,
+                         UserAddres.user_name: u_name, UserAddres.user_tel: u_tel, UserAddres.is_default: is_default})
             db.session.commit()
             return jsonify({
-                'status':200,
-                'msg':"修改收货地址成功"
+                'status': 200,
+                'msg': "修改收货地址成功"
             })
         else:
             return jsonify({
-                'status':300,
-                'msg':'记录不存在'
+                'status': 300,
+                'msg': '记录不存在'
             })
