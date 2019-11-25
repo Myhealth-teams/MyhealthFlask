@@ -18,7 +18,7 @@ from common.aliyun_sms import send_code
 
 user_blue = Blueprint("user_blue", __name__)
 
-
+# 获取验证码
 @user_blue.route('/phone/', methods=('POST',))
 def send():
     try:
@@ -37,7 +37,7 @@ def send():
             'msg': '获取验证码成功'
         })
 
-
+# 注册
 @user_blue.route('/register/', methods=('POST',))
 def register():
     try:
