@@ -77,7 +77,7 @@ def choice():
             })
 
 # 获取某商品信息的接口
-@goods_blue.route('/goods/', methods=("POST",))
+@goods_blue.route('/goods_detail/', methods=("POST",))
 def get_goods():
     try:
         req_data = request.get_json()
