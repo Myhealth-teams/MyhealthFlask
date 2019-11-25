@@ -4,7 +4,7 @@ from flask import Blueprint, jsonify, request
 
 import db
 from db.serializers import dumps
-from models import Rotatiton, Infomation, DiscountGood
+from models import Rotatiton, Infomation, DiscountGood, RotationSelect
 
 home_blue = Blueprint("home_blue", __name__)
 
@@ -12,13 +12,15 @@ home_blue = Blueprint("home_blue", __name__)
 @home_blue.route("/rotation/", methods=("GET",))
 def rotation():
     querys = db.session.query(Rotatiton)
+    select = db.session.query(RotationSelect).filter(RotationSelect.is_select==1)
     if querys.count() != 0:
         data = dumps(querys.all())
         return jsonify({
             "status": 200,
             "msg": "获取轮播图数据成功",
             "data": {
-                "urls": data
+                "urls": data,
+                'state':select.first().name
             }
         })
     else:

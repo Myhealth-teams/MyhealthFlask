@@ -148,14 +148,12 @@ class Room(Base):
     h = relationship('Hospital', lazy="immediate", primaryjoin='Room.h_id == Hospital.h_id', backref='rooms')
 
 
-class RotationStatu(Base):
-    __tablename__ = 'rotation_status'
+class RotationSelect(Base):
+    __tablename__ = 'rotation_select'
 
-    rs_id = Column(Integer, primary_key=True)
-    ro_id = Column(ForeignKey('rotatitons.ro_id'), index=True)
-    rs_name = Column(String(10), nullable=False)
-
-    ro = relationship('Rotatiton', lazy="immediate", primaryjoin='RotationStatu.ro_id == Rotatiton.ro_id', backref='rotation_status')
+    id = Column(Integer, primary_key=True)
+    name = Column(String(20))
+    is_select = Column(Integer)
 
 
 class Rotatiton(Base):

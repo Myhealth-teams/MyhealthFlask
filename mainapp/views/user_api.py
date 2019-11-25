@@ -319,7 +319,8 @@ def get_address():
 def add_address():
     try:
         req_data = request.get_json()
-        u_id, p_id, c_id, d_addr, u_name, u_tel, is_default = req_data['u_id'], req_data['provinceid'], req_data['cityid'], req_data['detail_address'], req_data['user_name'], req_data['user_tel'], req_data['is_default']
+        u_id, p_id, c_id, d_addr, u_name, u_tel, is_default = req_data['u_id'], req_data['provinceid'], req_data[
+            'cityid'], req_data['detail_address'], req_data['user_name'], req_data['user_tel'], req_data['is_default']
     except:
         return jsonify({
             'status': 400,
@@ -348,7 +349,9 @@ def add_address():
 def alter_address():
     try:
         req_data = request.get_json()
-        a_id, u_id, p_id, c_id, d_addr, u_name, u_tel, is_default = req_data['a_id'], req_data['u_id'], req_data['provinceid'], req_data['cityid'], req_data['detail_address'], req_data['user_name'], req_data['user_tel'], req_data['is_default']
+        a_id, u_id, p_id, c_id, d_addr, u_name, u_tel, is_default = req_data['a_id'], req_data['u_id'], req_data[
+            'provinceid'], req_data['cityid'], req_data['detail_address'], req_data['user_name'], req_data['user_tel'], \
+                                                                    req_data['is_default']
     except:
         return jsonify({
             'status': 400,
@@ -465,4 +468,60 @@ def disfollow_doctor():
             return jsonify({
                 'status': 300,
                 'msg': "查无此记录"
+            })
+
+
+# 获取用户所有关注的商品
+@user_blue.route('/follow_allgoods/', methods=('POST',))
+def follow_allgoods():
+    try:
+        req_data = request.get_json()
+        u_id = req_data['u_id']
+    except:
+        return jsonify({
+            'status': 400,
+            'msg': '请求参数错误'
+        })
+    else:
+        query = db.session.query(FollowGood).filter(FollowGood.u_id == u_id)
+        if query.count() != 0:
+            data = dumps(query.all())
+            return jsonify({
+                'status': 200,
+                'msg': "获取所有关注商品成功",
+                'data': {
+                    "followed_goods": data
+                }
+            })
+        else:
+            return jsonify({
+                'status':300,
+                'msg':"该用户暂未关注任何商品"
+            })
+# 获取用户所有关注的医生
+@user_blue.route('/follow_alldoctors/', methods=('POST',))
+def follow_alldoctors():
+    try:
+        req_data = request.get_json()
+        u_id = req_data['u_id']
+    except:
+        return jsonify({
+            'status': 400,
+            'msg': '请求参数错误'
+        })
+    else:
+        query = db.session.query(FollowDoc).filter(FollowDoc.u_id == u_id)
+        if query.count() != 0:
+            data = dumps(query.all())
+            return jsonify({
+                'status': 200,
+                'msg': "获取所有关注医生成功",
+                'data': {
+                    "followed_doctors": data
+                }
+            })
+        else:
+            return jsonify({
+                'status':300,
+                'msg':"该用户暂未关注任何医生"
             })
