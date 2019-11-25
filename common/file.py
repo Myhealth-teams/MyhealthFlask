@@ -6,7 +6,6 @@ import base64
 from _sha1 import sha1
 
 
-
 def change_filename(filename):
     try:
         file_name = filename.split(".")[0]
@@ -21,8 +20,8 @@ def change_filename(filename):
     return img_name
 
 
-def save_file(path,name,b_file, ):
-    with open(path+name, 'wb') as f:
+def save_file(path, name, b_file, ):
+    with open(path + name, 'wb') as f:
         f.write(b_file)
     f.close()
 

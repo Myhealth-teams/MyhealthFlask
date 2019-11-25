@@ -18,6 +18,7 @@ from common.aliyun_sms import send_code
 
 user_blue = Blueprint("user_blue", __name__)
 
+
 # 获取验证码
 @user_blue.route('/phone/', methods=('POST',))
 def send():
@@ -36,6 +37,7 @@ def send():
             'status': 200,
             'msg': '获取验证码成功'
         })
+
 
 # 注册
 @user_blue.route('/register/', methods=('POST',))
@@ -79,6 +81,7 @@ def register():
                 'msg': '手机号已存在'
             })
 
+
 # 用户登录的接口
 @user_blue.route('/login/', methods=('POST',))
 def login():
@@ -104,14 +107,14 @@ def login():
             login_user = query.first()
             if encode4md5(pwd) == login_user.u_password:
                 token = new_token()
-                add_token(phone,token)
+                add_token(phone, token)
                 data = dumps(login_user)
                 return jsonify({
                     'status': 200,
                     'msg': '登录成功',
                     'token': token,
-                    'data':  {
-                        'user':data
+                    'data': {
+                        'user': data
                     }
                     #     {
                     #     'u_id': login_user.id,
@@ -125,6 +128,7 @@ def login():
                     'status': 500,
                     'msg': '登录失败，用户名或密码错误'
                 })
+
 
 # 用户登出的接口
 @user_blue.route('/logout/', methods=('POST',))
@@ -140,9 +144,10 @@ def logout():
     else:
         remove_token(u_phone)
         return jsonify({
-            'status':200,
+            'status': 200,
             'msg': '退出登录成功'
         })
+
 
 # 用户忘记密码的接口，即找回密码
 @user_blue.route('/forget_pwd/', methods=('POST',))
@@ -200,7 +205,7 @@ def new_pwd():
         })
     else:
         query = db.session.query(User).filter(User.u_tel == u_tel)
-        if query.count() !=0:
+        if query.count() != 0:
             user = query.first()
             old_password = encode4md5(u_passwd)
             if old_password != user.u_password:
@@ -219,7 +224,7 @@ def new_pwd():
         else:
             return jsonify({
                 'status': 300,
-                'msg':"手机号错误"
+                'msg': "手机号错误"
             })
 
 
@@ -228,7 +233,7 @@ def new_pwd():
 def head_image():
     try:
         req_data = request.get_json()
-        u_id,upload_file = req_data['u_id'],req_data['files']
+        u_id, base_str = req_data['u_id'], req_data['files']
     except:
         return jsonify({
             "status": 400,
@@ -236,11 +241,17 @@ def head_image():
         })
     else:
         try:
+            file_str = base_str.split(",")[1]
+            file_ext = base_str.split("/")[1].split(";")[0]
+        except:
+            file_str = base_str
+            file_ext = 'jpg'
+        try:
             savepath = "/static/imgs/"
             uuid_str = uuid.uuid4().hex
-            filename = change_filename(uuid_str)
+            filename = uuid_str + "." + file_ext
             filepath = BASE_DIR + savepath
-            file = base64_to_bytes(upload_file)
+            file = base64_to_bytes(file_str)
             save_file(filepath, filename, file)
         except:
             return jsonify({
@@ -268,10 +279,12 @@ def head_image():
 
 
 # 获取用户所有收货地址的接口
-@user_blue.route('/all_address/', methods=('GET',))
+@user_blue.route('/all_address/', methods=('POST',))
 def get_address():
-    u_id = request.args.get("id")
-    if not u_id:
+    try:
+        req_data = request.get_json()
+        u_id = req_data['u_id']
+    except:
         return jsonify({
             'status': 400,
             'msg': '请求参数错误'
@@ -286,7 +299,7 @@ def get_address():
                     'status': 200,
                     'msg': '获取用户所有收货地址成功',
                     'data': {
-                        'alladdr':all_addr
+                        'alladdr': all_addr
                     }
                 })
             else:
@@ -306,8 +319,7 @@ def get_address():
 def add_address():
     try:
         req_data = request.get_json()
-        u_id, p_id, c_id, d_addr, u_name, u_tel, is_default = req_data['u_id'], req_data['provinceid'], req_data['cityid'], req_data[
-            'detail_address'], req_data['user_name'], req_data['user_tel'], req_data['is_default']
+        u_id, p_id, c_id, d_addr, u_name, u_tel, is_default = req_data['u_id'], req_data['provinceid'], req_data['cityid'], req_data['detail_address'], req_data['user_name'], req_data['user_tel'], req_data['is_default']
     except:
         return jsonify({
             'status': 400,
@@ -336,8 +348,7 @@ def add_address():
 def alter_address():
     try:
         req_data = request.get_json()
-        a_id, u_id, p_id, c_id, d_addr, u_name, u_tel, is_default = req_data['a_id'], req_data['u_id'], req_data['provinceid'], req_data[
-            'cityid'], req_data['detail_address'], req_data['user_name'], req_data['user_tel'], req_data['is_default']
+        a_id, u_id, p_id, c_id, d_addr, u_name, u_tel, is_default = req_data['a_id'], req_data['u_id'], req_data['provinceid'], req_data['cityid'], req_data['detail_address'], req_data['user_name'], req_data['user_tel'], req_data['is_default']
     except:
         return jsonify({
             'status': 400,
@@ -360,6 +371,7 @@ def alter_address():
                 'msg': '记录不存在'
             })
 
+
 # 用户添加关注药品的接口
 @user_blue.route('/follow_goods/', methods=('POST',))
 def follow_goods():
@@ -372,13 +384,14 @@ def follow_goods():
             'msg': '请求参数错误'
         })
     else:
-        new_follow_goods = FollowGood(u_id=u_id,goods_id=g_id)
+        new_follow_goods = FollowGood(u_id=u_id, goods_id=g_id)
         db.session.add(new_follow_goods)
         db.session.commit()
         return jsonify({
-            'status':200,
+            'status': 200,
             'msg': "关注药品成功"
         })
+
 
 # 用户取消关注药品接口
 @user_blue.route('/disfollow_goods/', methods=('POST',))
@@ -392,19 +405,21 @@ def disfollow_goods():
             'msg': '请求参数错误'
         })
     else:
-        query = db.session.query(FollowGood).filter(u_id==u_id,FollowGood.goods_id==g_id)
-        if query.count()!=0:
+        query = db.session.query(FollowGood).filter(u_id == u_id, FollowGood.goods_id == g_id)
+        if query.count() != 0:
             db.session.delete()
             db.session.commit()
             return jsonify({
-                'status':200,
+                'status': 200,
                 'msg': "取消关注药品成功"
             })
         else:
             return jsonify({
-                'status':300,
-                'msg':"查无此记录"
+                'status': 300,
+                'msg': "查无此记录"
             })
+
+
 # 用户添加关注医生的接口
 @user_blue.route('/follow_doctor/', methods=('POST',))
 def follow_doctor():
@@ -417,13 +432,15 @@ def follow_doctor():
             'msg': '请求参数错误'
         })
     else:
-        new_follow_doctor = FollowDoc(u_id=u_id,d_id=d_id)
+        new_follow_doctor = FollowDoc(u_id=u_id, d_id=d_id)
         db.session.add(new_follow_doctor)
         db.session.commit()
         return jsonify({
-            'status':200,
+            'status': 200,
             'msg': "关注医生成功"
         })
+
+
 # 用户取消关注医生接口
 @user_blue.route('/disfollow_doctor/', methods=('POST',))
 def disfollow_doctor():
@@ -436,16 +453,16 @@ def disfollow_doctor():
             'msg': '请求参数错误'
         })
     else:
-        query = db.session.query(FollowDoc).filter(d_id==d_id,u_id==u_id)
-        if query.count()!=0:
+        query = db.session.query(FollowDoc).filter(d_id == d_id, u_id == u_id)
+        if query.count() != 0:
             db.session.delete()
             db.session.commit()
             return jsonify({
-                'status':200,
+                'status': 200,
                 'msg': "取消关注医生成功"
             })
         else:
             return jsonify({
-                'status':300,
-                'msg':"查无此记录"
+                'status': 300,
+                'msg': "查无此记录"
             })
