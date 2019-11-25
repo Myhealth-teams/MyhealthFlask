@@ -387,13 +387,20 @@ def follow_goods():
             'msg': '请求参数错误'
         })
     else:
-        new_follow_goods = FollowGood(u_id=u_id, goods_id=g_id)
-        db.session.add(new_follow_goods)
-        db.session.commit()
-        return jsonify({
-            'status': 200,
-            'msg': "关注药品成功"
-        })
+        query = db.session.query(FollowGood).filter(FollowGood.u_id==u_id,FollowGood.goods_id==g_id)
+        if query.count() == 0:
+            new_follow_goods = FollowGood(u_id=u_id, goods_id=g_id)
+            db.session.add(new_follow_goods)
+            db.session.commit()
+            return jsonify({
+                'status': 200,
+                'msg': "关注药品成功"
+            })
+        else:
+            return jsonify({
+                'status':300,
+                'msg': "该用户已关注该商品"
+            })
 
 
 # 用户取消关注药品接口
@@ -435,14 +442,20 @@ def follow_doctor():
             'msg': '请求参数错误'
         })
     else:
-        new_follow_doctor = FollowDoc(u_id=u_id, d_id=d_id)
-        db.session.add(new_follow_doctor)
-        db.session.commit()
-        return jsonify({
-            'status': 200,
-            'msg': "关注医生成功"
-        })
-
+        query = db.session.query(FollowDoc).filter(FollowDoc.u_id == u_id, FollowDoc.d_id == d_id)
+        if query.count() == 0:
+            new_follow_doctor = FollowDoc(u_id=u_id, d_id=d_id)
+            db.session.add(new_follow_doctor)
+            db.session.commit()
+            return jsonify({
+                'status': 200,
+                'msg': "关注医生成功"
+            })
+        else:
+            return jsonify({
+                'status': 300,
+                'msg': "该用户已关注该医生"
+            })
 
 # 用户取消关注医生接口
 @user_blue.route('/disfollow_doctor/', methods=('POST',))

@@ -28,7 +28,7 @@ goods_blue = Blueprint("goods_blue", __name__)
 
 # 获取所有商品和商品类型的接口
 @goods_blue.route('/goodstype/', methods=("GET",))
-def types():
+def all_goods_types():
     query_medtype = db.session.query(Medtype)
     qyery_goods = db.session.query(Good)
     if all((query_medtype.count() != 0, qyery_goods.count() != 0)):
@@ -74,4 +74,32 @@ def choice():
             return jsonify({
                 "status": 300,
                 "msg": "暂无数据",
+            })
+
+# 获取某商品信息的接口
+@goods_blue.route('/goods/', methods=("POST",))
+def get_goods():
+    try:
+        req_data = request.get_json()
+        g_id = req_data['goods_id']
+    except:
+        return jsonify({
+            'status': 400,
+            'msg': '请求参数错误'
+        })
+    else:
+        query = db.session.query(Good).filter(Good.goods_id== g_id)
+        if query.count() != 0:
+            data = dumps(query.first())
+            return jsonify({
+                "status": 200,
+                "msg": "查询该分类所有商品成功",
+                "data": {
+                    "goods": data
+                }
+            })
+        else:
+            return jsonify({
+                "status": 500,
+                "msg": "查新商品失败",
             })
