@@ -12,13 +12,12 @@ goods_blue = Blueprint("goods_blue", __name__)
 def goods():
     querys = db.session.query(Good)
     if querys.count() != 0:
-        query = dumps(querys.all())
-
+        data = dumps(querys.all())
         return jsonify({
             "status": 200,
             "msg": "查询所有商品成功",
             "data": {
-                "allgoods": query
+                "allgoods": data
             }
         })
     else:
@@ -32,12 +31,12 @@ def goods():
 def types():
     querys = db.session.query(Medtype)
     if querys.count() != 0:
-        query = dumps(querys.all())
+        data = dumps(querys.all())
         return jsonify({
             "status": 200,
             "msg": "获取所有商品类型成功",
             "data": {
-                "goodstype": query
+                "goodstype": data
             }
         })
     else:
@@ -49,20 +48,27 @@ def types():
 
 @goods_blue.route('/choicetype/', methods=("POST",))
 def choice():
-    data = request.get_json()
-    typeid = data.get("typeid")
-    querys = db.session.query(Good).filter(Good.medtype == typeid)
-    if querys.count() != 0:
-        query = dumps(querys.all())
+    try:
+        req_data = request.get_json()
+        m_id = req_data['m_id']
+    except:
         return jsonify({
-            "status": 200,
-            "msg": "查询该分类所有商品成功",
-            "data": {
-                "goods": query
-            }
+            'status': 400,
+            'msg': '请求参数错误'
         })
     else:
-        return jsonify({
-            "status": 300,
-            "msg": "暂无数据",
-        })
+        query = db.session.query(Good).filter(Good.medtype == m_id)
+        if query.count() != 0:
+            data = dumps(query.all())
+            return jsonify({
+                "status": 200,
+                "msg": "查询该分类所有商品成功",
+                "data": {
+                    "goods": data
+                }
+            })
+        else:
+            return jsonify({
+                "status": 300,
+                "msg": "暂无数据",
+            })

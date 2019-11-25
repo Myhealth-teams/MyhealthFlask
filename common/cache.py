@@ -2,21 +2,42 @@
 # -*-coding:UTF-8-*-
 # __author__ = pighui
 # __time__ = 2019-11-20 上午11:10
-from common import r
-def add_token(token, user_id):
-    r.set(token, user_id)
+from common import r15, r14
+
+
+def add_token(phone,token):
+    r15.set(phone,token)
 
 
 def remove_token(token):
-    r.delete(token)
+    r15.delete(token)
 
 
 def valid_token(token):
-    result = r.get(token)
+    result = r15.get(token)
     if result:
         return True
+    else:
+        return False
 
-def get_token(token):
+def get_token(phone):
     # 获取token绑定的id
-    id = r.get(token)
-    return id
+    token = r15.get(phone)
+    return token
+
+
+def set_code(phone, code):
+    r14.set(phone, code, ex=120)
+
+
+def valid_code(phone):
+    result = r14.ttl(phone)
+    if result:
+        return True
+    else:
+        return False
+
+
+def get_code(phone):
+    code = r14.get(phone)
+    return code

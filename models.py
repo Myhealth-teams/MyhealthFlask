@@ -28,19 +28,18 @@ class City(Base):
     provinceid = Column(ForeignKey('province.provinceid'), index=True)
     cityname = Column(String(45))
 
-    province = relationship('Province', lazy='immediate', primaryjoin='City.provinceid == Province.provinceid',
-                            backref='cities')
+    province = relationship('Province', lazy='immediate', primaryjoin='City.provinceid == Province.provinceid', backref='cities')
 
 
 class DiscountGood(Base):
     __tablename__ = 'discount_goods'
 
     dg_id = Column(Integer, primary_key=True, unique=True)
-    dg_name = Column(String(50))
-    dg_url = Column(String(256))
-    dg_price = Column(Float)
-    dg_newprice = Column(Float)
-    dg_type = Column(Integer)
+    goods_id = Column(ForeignKey('goods.goods_id'), nullable=False, index=True)
+    discount = Column(Float, nullable=False)
+    new_price = Column(Float)
+
+    goods = relationship('Good', lazy='immediate', primaryjoin='DiscountGood.goods_id == Good.goods_id', backref='discount_goods')
 
 
 class DjangoMigration(Base):
@@ -61,10 +60,33 @@ class Doctor(Base):
     d_relname = Column(String(20))
     d_skill = Column(String(1000))
     d_head = Column(String(200))
-    d_idcard = Column(String(20), server_default=FetchedValue())
-    d_cer = Column(String(256), server_default=FetchedValue())
+    d_idcard = Column(String(20))
+    d_cer = Column(String(256))
+    is_order = Column(Integer, nullable=False, server_default=FetchedValue())
 
     room = relationship('Room', lazy='immediate', primaryjoin='Doctor.room_id == Room.room_id', backref='doctors')
+
+
+class FollowDoc(Base):
+    __tablename__ = 'follow_doc'
+
+    fd_id = Column(Integer, primary_key=True, unique=True)
+    u_id = Column(ForeignKey('users.id'), index=True)
+    d_id = Column(ForeignKey('doctors.d_id'), index=True)
+
+    d = relationship('Doctor', lazy='immediate', primaryjoin='FollowDoc.d_id == Doctor.d_id', backref='follow_docs')
+    u = relationship('User', lazy='immediate', primaryjoin='FollowDoc.u_id == User.id', backref='follow_docs')
+
+
+class FollowGood(Base):
+    __tablename__ = 'follow_good'
+
+    fd_id = Column(Integer, primary_key=True, unique=True)
+    u_id = Column(ForeignKey('users.id'), index=True)
+    goods_id = Column(ForeignKey('goods.goods_id'), index=True)
+
+    goods = relationship('Good', lazy='immediate', primaryjoin='FollowGood.goods_id == Good.goods_id', backref='follow_goods')
+    u = relationship('User', lazy='immediate', primaryjoin='FollowGood.u_id == User.id', backref='follow_goods')
 
 
 class Good(Base):
@@ -132,8 +154,7 @@ class RotationStatu(Base):
     ro_id = Column(ForeignKey('rotatitons.ro_id'), index=True)
     rs_name = Column(String(10), nullable=False)
 
-    ro = relationship('Rotatiton', lazy='immediate', primaryjoin='RotationStatu.ro_id == Rotatiton.ro_id',
-                      backref='rotation_status')
+    ro = relationship('Rotatiton', lazy='immediate', primaryjoin='RotationStatu.ro_id == Rotatiton.ro_id', backref='rotation_status')
 
 
 class Rotatiton(Base):
@@ -181,8 +202,7 @@ class UserAddres(Base):
     detail_address = Column(String(200))
     is_default = Column(Integer)
 
-    city = relationship('City', lazy='immediate', primaryjoin='UserAddres.cityid == City.cityid',
-                        backref='user_address')
+    city = relationship('City', lazy='immediate', primaryjoin='UserAddres.cityid == City.cityid', backref='user_address')
     user = relationship('User', lazy='immediate', primaryjoin='UserAddres.id == User.id', backref='user_address')
     province = relationship('Province', lazy='immediate', primaryjoin='UserAddres.provinceid == Province.provinceid',
                             backref='user_address')

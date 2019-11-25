@@ -5,11 +5,12 @@
 
 import uuid
 
+from common.cache import set_code, valid_code, get_code, remove_token, add_token
 from db.serializers import dumps
 from settings import BASE_DIR
 from common.file import change_filename, base64_to_bytes, save_file
 from common.token_ import new_token
-from models import User, UserAddres
+from models import User, UserAddres, FollowGood, FollowDoc
 from common.encrypt import encode4md5
 import db
 from flask import Blueprint, jsonify, request
@@ -31,7 +32,7 @@ def send():
         })
     else:
         code = send_code(phone)
-        r.set(phone, code, ex=120)
+        set_code(phone, code)
         return jsonify({
             'status': 200,
             'msg': '获取验证码成功'
@@ -51,15 +52,14 @@ def register():
     else:
         query = db.session.query(User).filter(User.u_tel == u_phone)
         if query.count() == 0:
-            result = r.ttl(u_phone)
+            result = valid_code(u_phone)
             if not result:
                 return jsonify({
                     'status': 300,
                     'msg': '验证码已过期'
                 })
             else:
-                code = r.get(u_phone)
-
+                code = get_code(u_phone)
                 if code == u_code:
                     password = encode4md5(u_passwd)
                     new_user = User(u_tel=u_phone, u_password=password)
@@ -80,7 +80,7 @@ def register():
                 'msg': '手机号已存在'
             })
 
-
+# 用户登录的接口
 @user_blue.route('/login/', methods=('POST',))
 def login():
     # 获取请求上传的json数据
@@ -89,8 +89,7 @@ def login():
         phone, pwd = req_data['u_tel'], req_data['u_password']
         if any((len(pwd.strip()), len(phone.strip()))) == 0:
             raise Exception()
-    except Exception as e:
-        print(e)
+    except:
         return jsonify({
             'status': 400,
             'msg': '请求参数错误'
@@ -106,10 +105,10 @@ def login():
             login_user = query.first()
             if encode4md5(pwd) == login_user.u_password:
                 token = new_token()
-                #
+                add_token(phone,token)
                 return jsonify({
                     'status': 200,
-                    'msg': '登陆成功',
+                    'msg': '登录成功',
                     'token': token,
                     'data': {
                         'u_id': login_user.id,
@@ -124,6 +123,23 @@ def login():
                     'msg': '登录失败，用户名或密码错误'
                 })
 
+# 用户登出的接口
+@user_blue.route('/logout/', methods=('POST',))
+def logout():
+    try:
+        data = request.get_json()
+        u_phone = data['u_tel']
+    except:
+        return jsonify({
+            'status': 400,
+            'msg': '请求参数错误'
+        })
+    else:
+        remove_token(u_phone)
+        return jsonify({
+            'status':200,
+            'msg': '退出登录成功'
+        })
 
 # 用户忘记密码的接口，即找回密码
 @user_blue.route('/forget_pwd/', methods=('POST',))
@@ -283,7 +299,7 @@ def get_address():
 def add_address():
     try:
         data = request.get_json()
-        u_id, p_id, c_id, d_addr, u_name, u_tel, is_default = data['id'], data['provinceid'], data['cityid'], data[
+        u_id, p_id, c_id, d_addr, u_name, u_tel, is_default = data['u_id'], data['provinceid'], data['cityid'], data[
             'detail_address'], data['user_name'], data['user_tel'], data['is_default']
     except:
         return jsonify({
@@ -313,7 +329,7 @@ def add_address():
 def alter_address():
     try:
         data = request.get_json()
-        a_id, u_id, p_id, c_id, d_addr, u_name, u_tel, is_default = data['a_id'], data['id'], data['provinceid'], data[
+        a_id, u_id, p_id, c_id, d_addr, u_name, u_tel, is_default = data['a_id'], data['u_id'], data['provinceid'], data[
             'cityid'], data['detail_address'], data['user_name'], data['user_tel'], data['is_default']
     except:
         return jsonify({
@@ -335,4 +351,94 @@ def alter_address():
             return jsonify({
                 'status': 300,
                 'msg': '记录不存在'
+            })
+
+# 用户添加关注药品的接口
+@user_blue.route('/follow_goods/', methods=('POST',))
+def follow_goods():
+    try:
+        req_data = request.get_json()
+        u_id, g_id = req_data['u_id'], req_data['goods_id']
+    except:
+        return jsonify({
+            'status': 400,
+            'msg': '请求参数错误'
+        })
+    else:
+        new_follow_goods = FollowGood(u_id=u_id,goods_id=g_id)
+        db.session.add(new_follow_goods)
+        db.session.commit()
+        return jsonify({
+            'status':200,
+            'msg': "关注药品成功"
+        })
+
+# 用户取消关注药品接口
+@user_blue.route('/disfollow_goods/', methods=('POST',))
+def disfollow_goods():
+    try:
+        req_data = request.get_json()
+        u_id, g_id = req_data['u_id'], req_data['goods_id']
+    except:
+        return jsonify({
+            'status': 400,
+            'msg': '请求参数错误'
+        })
+    else:
+        query = db.session.query(FollowGood).filter(u_id==u_id,FollowGood.goods_id==g_id)
+        if query.count()!=0:
+            db.session.delete()
+            db.session.commit()
+            return jsonify({
+                'status':200,
+                'msg': "取消关注药品成功"
+            })
+        else:
+            return jsonify({
+                'status':300,
+                'msg':"查无此记录"
+            })
+# 用户添加关注医生的接口
+@user_blue.route('/follow_doctor/', methods=('POST',))
+def follow_doctor():
+    try:
+        req_data = request.get_json()
+        u_id, d_id = req_data['u_id'], req_data['d_id']
+    except:
+        return jsonify({
+            'status': 400,
+            'msg': '请求参数错误'
+        })
+    else:
+        new_follow_doctor = FollowDoc(u_id=u_id,d_id=d_id)
+        db.session.add(new_follow_doctor)
+        db.session.commit()
+        return jsonify({
+            'status':200,
+            'msg': "关注医生成功"
+        })
+# 用户取消关注医生接口
+@user_blue.route('/disfollow_doctor/', methods=('POST',))
+def disfollow_doctor():
+    try:
+        req_data = request.get_json()
+        u_id, d_id = req_data['u_id'], req_data['d_id']
+    except:
+        return jsonify({
+            'status': 400,
+            'msg': '请求参数错误'
+        })
+    else:
+        query = db.session.query(FollowDoc).filter(d_id==d_id,u_id==u_id)
+        if query.count()!=0:
+            db.session.delete()
+            db.session.commit()
+            return jsonify({
+                'status':200,
+                'msg': "取消关注医生成功"
+            })
+        else:
+            return jsonify({
+                'status':300,
+                'msg':"查无此记录"
             })
