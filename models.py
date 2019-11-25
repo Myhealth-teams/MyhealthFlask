@@ -18,8 +18,8 @@ class Cart(Base):
     c_goods_num = Column(Integer, nullable=False)
     c_is_selected = Column(Integer, nullable=False)
 
-    goods = relationship('Good', lazy='immediate', primaryjoin='Cart.goods_id == Good.goods_id', backref='carts')
-    u = relationship('User', lazy='immediate', primaryjoin='Cart.u_id == User.id', backref='carts')
+    goods = relationship('Good', lazy="immediate", primaryjoin='Cart.goods_id == Good.goods_id', backref='carts')
+    u = relationship('User', lazy="immediate", primaryjoin='Cart.u_id == User.id', backref='carts')
 
 
 class City(Base):
@@ -29,7 +29,7 @@ class City(Base):
     provinceid = Column(ForeignKey('province.provinceid'), index=True)
     cityname = Column(String(45))
 
-    province = relationship('Province', lazy='immediate', primaryjoin='City.provinceid == Province.provinceid', backref='cities')
+    province = relationship('Province', lazy="immediate", primaryjoin='City.provinceid == Province.provinceid', backref='cities')
 
 
 class DiscountGood(Base):
@@ -40,7 +40,7 @@ class DiscountGood(Base):
     discount = Column(Float, nullable=False)
     new_price = Column(Float)
 
-    goods = relationship('Good', lazy='immediate', primaryjoin='DiscountGood.goods_id == Good.goods_id', backref='discount_goods')
+    goods = relationship('Good', lazy="immediate", primaryjoin='DiscountGood.goods_id == Good.goods_id', backref='discount_goods')
 
 
 class DjangoMigration(Base):
@@ -65,7 +65,7 @@ class Doctor(Base):
     d_cer = Column(String(256))
     is_order = Column(Integer, nullable=False, server_default=FetchedValue())
 
-    room = relationship('Room', lazy='immediate', primaryjoin='Doctor.room_id == Room.room_id', backref='doctors')
+    room = relationship('Room', lazy="immediate", primaryjoin='Doctor.room_id == Room.room_id', backref='doctors')
 
 
 class FollowDoc(Base):
@@ -75,8 +75,8 @@ class FollowDoc(Base):
     u_id = Column(ForeignKey('users.id'), index=True)
     d_id = Column(ForeignKey('doctors.d_id'), index=True)
 
-    d = relationship('Doctor', lazy='immediate', primaryjoin='FollowDoc.d_id == Doctor.d_id', backref='follow_docs')
-    u = relationship('User', lazy='immediate', primaryjoin='FollowDoc.u_id == User.id', backref='follow_docs')
+    d = relationship('Doctor', lazy="immediate", primaryjoin='FollowDoc.d_id == Doctor.d_id', backref='follow_docs')
+    u = relationship('User', lazy="immediate", primaryjoin='FollowDoc.u_id == User.id', backref='follow_docs')
 
 
 class FollowGood(Base):
@@ -86,8 +86,8 @@ class FollowGood(Base):
     u_id = Column(ForeignKey('users.id'), index=True)
     goods_id = Column(ForeignKey('goods.goods_id'), index=True)
 
-    goods = relationship('Good', lazy='immediate', primaryjoin='FollowGood.goods_id == Good.goods_id', backref='follow_goods')
-    u = relationship('User', lazy='immediate', primaryjoin='FollowGood.u_id == User.id', backref='follow_goods')
+    goods = relationship('Good', lazy="immediate", primaryjoin='FollowGood.goods_id == Good.goods_id', backref='follow_goods')
+    u = relationship('User', lazy="immediate", primaryjoin='FollowGood.u_id == User.id', backref='follow_goods')
 
 
 class Good(Base):
@@ -97,11 +97,9 @@ class Good(Base):
     goods_name = Column(String(50))
     url = Column(String(256), nullable=False)
     price = Column(Float, nullable=False)
-    medtype = Column(ForeignKey('medtypes.m_id'), nullable=False, index=True)
+    medtype = Column(Integer, nullable=False)
     standards = Column(String(30), nullable=False)
     detial = Column(String(256))
-
-    medtype1 = relationship('Medtype', lazy='immediate', primaryjoin='Good.medtype == Medtype.m_id', backref='goods')
 
 
 class Hospital(Base):
@@ -114,7 +112,7 @@ class Hospital(Base):
     hgrade = Column(String(20))
     htext = Column(String(200))
 
-    city = relationship('City', lazy='immediate', primaryjoin='Hospital.cityid == City.cityid', backref='hospitals')
+    city = relationship('City', lazy="immediate", primaryjoin='Hospital.cityid == City.cityid', backref='hospitals')
 
 
 class Infomation(Base):
@@ -147,7 +145,7 @@ class Room(Base):
     h_id = Column(ForeignKey('hospitals.h_id'), index=True)
     roomname = Column(String(45))
 
-    h = relationship('Hospital', lazy='immediate', primaryjoin='Room.h_id == Hospital.h_id', backref='rooms')
+    h = relationship('Hospital', lazy="immediate", primaryjoin='Room.h_id == Hospital.h_id', backref='rooms')
 
 
 class RotationStatu(Base):
@@ -157,7 +155,7 @@ class RotationStatu(Base):
     ro_id = Column(ForeignKey('rotatitons.ro_id'), index=True)
     rs_name = Column(String(10), nullable=False)
 
-    ro = relationship('Rotatiton', lazy='immediate', primaryjoin='RotationStatu.ro_id == Rotatiton.ro_id', backref='rotation_status')
+    ro = relationship('Rotatiton', lazy="immediate", primaryjoin='RotationStatu.ro_id == Rotatiton.ro_id', backref='rotation_status')
 
 
 class Rotatiton(Base):
@@ -205,9 +203,9 @@ class UserAddres(Base):
     detail_address = Column(String(200))
     is_default = Column(Integer)
 
-    city = relationship('City', lazy='immediate', primaryjoin='UserAddres.cityid == City.cityid', backref='user_address')
-    user = relationship('User', lazy='immediate', primaryjoin='UserAddres.id == User.id', backref='user_address')
-    province = relationship('Province', lazy='immediate', primaryjoin='UserAddres.provinceid == Province.provinceid', backref='user_address')
+    city = relationship('City', lazy="immediate", primaryjoin='UserAddres.cityid == City.cityid', backref='user_address')
+    user = relationship('User', lazy="immediate", primaryjoin='UserAddres.id == User.id', backref='user_address')
+    province = relationship('Province', lazy="immediate", primaryjoin='UserAddres.provinceid == Province.provinceid', backref='user_address')
 
 
 class User(Base):
