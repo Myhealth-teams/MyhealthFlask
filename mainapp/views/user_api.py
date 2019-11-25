@@ -105,16 +105,20 @@ def login():
             if encode4md5(pwd) == login_user.u_password:
                 token = new_token()
                 add_token(phone,token)
+                data = dumps(login_user)
                 return jsonify({
                     'status': 200,
                     'msg': '登录成功',
                     'token': token,
-                    'data': {
-                        'u_id': login_user.id,
-                        'u_name': login_user.u_name,
-                        'u_tel': login_user.u_tel,
-                        'u_image': login_user.u_image
+                    'data':  {
+                        'user':data
                     }
+                    #     {
+                    #     'u_id': login_user.id,
+                    #     'u_name': login_user.u_name,
+                    #     'u_tel': login_user.u_tel,
+                    #     'u_image': login_user.u_image
+                    # }
                 })
             else:
                 return jsonify({
@@ -126,8 +130,8 @@ def login():
 @user_blue.route('/logout/', methods=('POST',))
 def logout():
     try:
-        data = request.get_json()
-        u_phone = data['u_tel']
+        req_data = request.get_json()
+        u_phone = req_data['u_tel']
     except:
         return jsonify({
             'status': 400,
@@ -217,13 +221,9 @@ def new_pwd():
 @user_blue.route('/head/', methods=('POST',))
 def head_image():
     try:
-        data = request.get_json()
-        u_id = data['u_id']
-        upload_file = data['files']
-        print(u_id)
-        print(upload_file)
+        req_data = request.get_json()
+        u_id,upload_file = req_data['u_id'],req_data['files']
     except:
-
         return jsonify({
             "status": 400,
             'msg': "请求参数错误"
@@ -279,7 +279,9 @@ def get_address():
                 return jsonify({
                     'status': 200,
                     'msg': '获取用户所有收货地址成功',
-                    'data': all_addr
+                    'data': {
+                        'alladdr':all_addr
+                    }
                 })
             else:
                 return jsonify({
@@ -297,9 +299,9 @@ def get_address():
 @user_blue.route('/add_address/', methods=('POST',))
 def add_address():
     try:
-        data = request.get_json()
-        u_id, p_id, c_id, d_addr, u_name, u_tel, is_default = data['u_id'], data['provinceid'], data['cityid'], data[
-            'detail_address'], data['user_name'], data['user_tel'], data['is_default']
+        req_data = request.get_json()
+        u_id, p_id, c_id, d_addr, u_name, u_tel, is_default = req_data['u_id'], req_data['provinceid'], req_data['cityid'], req_data[
+            'detail_address'], req_data['user_name'], req_data['user_tel'], req_data['is_default']
     except:
         return jsonify({
             'status': 400,
@@ -327,9 +329,9 @@ def add_address():
 @user_blue.route('/alter_address/', methods=('POST',))
 def alter_address():
     try:
-        data = request.get_json()
-        a_id, u_id, p_id, c_id, d_addr, u_name, u_tel, is_default = data['a_id'], data['u_id'], data['provinceid'], data[
-            'cityid'], data['detail_address'], data['user_name'], data['user_tel'], data['is_default']
+        req_data = request.get_json()
+        a_id, u_id, p_id, c_id, d_addr, u_name, u_tel, is_default = req_data['a_id'], req_data['u_id'], req_data['provinceid'], req_data[
+            'cityid'], req_data['detail_address'], req_data['user_name'], req_data['user_tel'], req_data['is_default']
     except:
         return jsonify({
             'status': 400,

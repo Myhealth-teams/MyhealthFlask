@@ -65,10 +65,10 @@ def sub_cart():
                 db.session.commit()
             return jsonify({
                 'status': 200,
-                'msg': '删除购物车成功！'
+                'msg': '删除购物车成功'
             })
         except:
             return jsonify({
                 'status': 300,
-                'msg': "删除购物车失败！"
+                'msg': "删除购物车失败"
             })

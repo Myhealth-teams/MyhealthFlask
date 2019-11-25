@@ -13,12 +13,12 @@ home_blue = Blueprint("home_blue", __name__)
 def rotation():
     querys = db.session.query(Rotatiton)
     if querys.count() != 0:
-        query = dumps(querys.all())
+        data = dumps(querys.all())
         return jsonify({
             "status": 200,
             "msg": "获取轮播图数据成功",
             "data": {
-                "urls": query
+                "urls": data
             }
         })
     else:
@@ -32,12 +32,12 @@ def rotation():
 def info():
     querys = db.session.query(Infomation)
     if querys.count() != 0:
-        query = random.choice(dumps(querys.all()))
+        data = random.choice(dumps(querys.all()))
         return jsonify({
             "status": 200,
             "msg": "获取资讯数据成功",
             "data": {
-                "info": query
+                "info": data
             }
         })
     else:
@@ -53,12 +53,12 @@ def cheapgoods():
     querys = db.session.query(DiscountGood)
     if not count:
         if querys.count() != 0:
-            query = dumps(querys.all())
+            data = dumps(querys.all())
             return jsonify({
                 "status": 200,
                 "msg": "获取打折商品数据成功",
                 "data": {
-                    "goods": query
+                    "goods": data
                 }
             })
         else:
@@ -68,12 +68,12 @@ def cheapgoods():
             })
     else:
         if querys.count() != 0:
-            query = dumps(querys.limit(count))
+            data = dumps(querys.limit(count))
             return jsonify({
                 "status": 200,
                 "msg": "获取指定数量打折商品数据成功",
                 "data": {
-                    "goods": query
+                    "goods": data
                 }
             })
         else:
