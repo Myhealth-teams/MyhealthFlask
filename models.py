@@ -75,7 +75,7 @@ class FollowDoc(Base):
     u_id = Column(ForeignKey('users.id'), index=True)
     d_id = Column(ForeignKey('doctors.d_id'), index=True)
 
-    d = relationship('Doctor',lazy='immediate', primaryjoin='FollowDoc.d_id == Doctor.d_id', backref='follow_docs')
+    d = relationship('Doctor', lazy="immediate", primaryjoin='FollowDoc.d_id == Doctor.d_id', backref='follow_docs')
     u = relationship('User', primaryjoin='FollowDoc.u_id == User.id', backref='follow_docs')
 
 
@@ -86,7 +86,7 @@ class FollowGood(Base):
     u_id = Column(ForeignKey('users.id'), index=True)
     goods_id = Column(ForeignKey('goods.goods_id'), index=True)
 
-    goods = relationship('Good', lazy='immediate', primaryjoin='FollowGood.goods_id == Good.goods_id', backref='follow_goods')
+    goods = relationship('Good', lazy="immediate", primaryjoin='FollowGood.goods_id == Good.goods_id', backref='follow_goods')
     u = relationship('User', primaryjoin='FollowGood.u_id == User.id', backref='follow_goods')
 
 
@@ -95,11 +95,34 @@ class Good(Base):
 
     goods_id = Column(Integer, primary_key=True)
     goods_name = Column(String(50))
+    url = Column(String(256))
+    price = Column(Float)
+    medtype = Column(Integer)
+    standards = Column(String(30))
+    detail = Column(String(4096))
+    product_num = Column(String(20))
+    product_name = Column(String(20))
+    normal_name = Column(String(50))
+    allow_num = Column(String(20))
+    imgs = Column(String(512))
+    introduce_img = Column(String(100))
+
+
+class GoodsOld(Base):
+    __tablename__ = 'goods_old'
+
+    goods_id = Column(Integer, primary_key=True)
+    goods_name = Column(String(50))
     url = Column(String(256), nullable=False)
     price = Column(Float, nullable=False)
     medtype = Column(Integer, nullable=False)
     standards = Column(String(30), nullable=False)
-    detial = Column(String(256))
+    detial = Column(String(1000))
+    product_num = Column(String(20))
+    normal_name = Column(String(50))
+    allow_num = Column(String(20))
+    imgs = Column(String(256))
+    introduce_img = Column(String(45))
 
 
 class Hospital(Base):
@@ -129,6 +152,33 @@ class Medtype(Base):
     m_id = Column(Integer, primary_key=True)
     typenum = Column(Integer, nullable=False)
     medname = Column(String(50), nullable=False)
+
+
+class Orderdetail(Base):
+    __tablename__ = 'orderdetail'
+
+    o_detail_id = Column(Integer, primary_key=True)
+    o_id = Column(ForeignKey('orderlist.orderid'), index=True)
+    goods_id = Column(ForeignKey('goods.goods_id'), index=True)
+    goods_num = Column(Integer)
+
+    goods = relationship('Good', primaryjoin='Orderdetail.goods_id == Good.goods_id', backref='orderdetails')
+    o = relationship('Orderlist', primaryjoin='Orderdetail.o_id == Orderlist.orderid', backref='orderdetails')
+
+
+class Orderlist(Base):
+    __tablename__ = 'orderlist'
+
+    orderid = Column(Integer, primary_key=True, unique=True)
+    u_id = Column(ForeignKey('users.id'), index=True)
+    price = Column(Float)
+    time = Column(String(45))
+    nums = Column(Integer)
+    a_id = Column(ForeignKey('user_address.a_id'), index=True)
+    state = Column(Integer)
+
+    a = relationship('UserAddres', primaryjoin='Orderlist.a_id == UserAddres.a_id', backref='orderlists')
+    u = relationship('User', primaryjoin='Orderlist.u_id == User.id', backref='orderlists')
 
 
 class Province(Base):
@@ -204,6 +254,14 @@ class UserAddres(Base):
     city = relationship('City', primaryjoin='UserAddres.cityid == City.cityid', backref='user_address')
     user = relationship('User', primaryjoin='UserAddres.id == User.id', backref='user_address')
     province = relationship('Province', primaryjoin='UserAddres.provinceid == Province.provinceid', backref='user_address')
+
+
+class Userauth(Base):
+    __tablename__ = 'userauth'
+
+    id = Column(Integer, primary_key=True)
+    userid = Column(Integer)
+    auth = Column(Integer)
 
 
 class User(Base):
