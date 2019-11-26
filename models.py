@@ -40,7 +40,7 @@ class DiscountGood(Base):
     discount = Column(Float, nullable=False)
     new_price = Column(Float)
 
-    goods = relationship('Good', primaryjoin='DiscountGood.goods_id == Good.goods_id', backref='discount_goods')
+    goods = relationship('Good', lazy="immediate", primaryjoin='DiscountGood.goods_id == Good.goods_id', backref='discount_goods')
 
 
 class DjangoMigration(Base):
