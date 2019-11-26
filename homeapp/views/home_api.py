@@ -53,6 +53,7 @@ def info():
 def cheapgoods():
     count = request.args.get("count")
     querys = db.session.query(DiscountGood)
+    print(count)
     if not count:
         if querys.count() != 0:
             data = dumps(querys.all())
@@ -70,7 +71,7 @@ def cheapgoods():
             })
     else:
         if querys.count() != 0:
-            data = dumps(querys.limit(count))
+            data = random.choices(dumps(querys.all()),k=int(count))
             return jsonify({
                 "status": 200,
                 "msg": "获取指定数量打折商品数据成功",

@@ -75,7 +75,7 @@ class FollowDoc(Base):
     u_id = Column(ForeignKey('users.id'), index=True)
     d_id = Column(ForeignKey('doctors.d_id'), index=True)
 
-    d = relationship('Doctor', primaryjoin='FollowDoc.d_id == Doctor.d_id', backref='follow_docs')
+    d = relationship('Doctor',lazy='immediate', primaryjoin='FollowDoc.d_id == Doctor.d_id', backref='follow_docs')
     u = relationship('User', primaryjoin='FollowDoc.u_id == User.id', backref='follow_docs')
 
 
@@ -86,7 +86,7 @@ class FollowGood(Base):
     u_id = Column(ForeignKey('users.id'), index=True)
     goods_id = Column(ForeignKey('goods.goods_id'), index=True)
 
-    goods = relationship('Good', primaryjoin='FollowGood.goods_id == Good.goods_id', backref='follow_goods')
+    goods = relationship('Good', lazy='immediate', primaryjoin='FollowGood.goods_id == Good.goods_id', backref='follow_goods')
     u = relationship('User', primaryjoin='FollowGood.u_id == User.id', backref='follow_goods')
 
 
