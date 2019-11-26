@@ -84,3 +84,7 @@ def cheapgoods():
                 "status": 300,
                 "msg": "暂无数据"
             })
+
+@home_blue.route("/search/", methods=("POST",))
+def search():
+    db.session.query()

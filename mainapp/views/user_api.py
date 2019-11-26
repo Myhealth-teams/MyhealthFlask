@@ -417,7 +417,7 @@ def disfollow_goods():
     else:
         query = db.session.query(FollowGood).filter(u_id == u_id, FollowGood.goods_id == g_id)
         if query.count() != 0:
-            db.session.delete()
+            db.session.delete(query.first())
             db.session.commit()
             return jsonify({
                 'status': 200,
@@ -471,7 +471,7 @@ def disfollow_doctor():
     else:
         query = db.session.query(FollowDoc).filter(d_id == d_id, u_id == u_id)
         if query.count() != 0:
-            db.session.delete()
+            db.session.delete(query.first())
             db.session.commit()
             return jsonify({
                 'status': 200,
