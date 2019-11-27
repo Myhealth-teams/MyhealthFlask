@@ -3,9 +3,9 @@ import random
 from flask import Blueprint, jsonify, request
 
 import db
-from db.db_util import desc_table, make_sql
+from db.db_util import make_sql
 from db.serializers import dumps
-from models import Rotatiton, Infomation, DiscountGood, RotationSelect, Good
+from models import Rotatiton, Infomation, DiscountGood, RotationSelect, Good, Hospital
 
 home_blue = Blueprint("home_blue", __name__)
 
@@ -13,7 +13,7 @@ home_blue = Blueprint("home_blue", __name__)
 @home_blue.route("/rotation/", methods=("GET",))
 def rotation():
     querys = db.session.query(Rotatiton)
-    select = db.session.query(RotationSelect).filter(RotationSelect.is_select==1)
+    select = db.session.query(RotationSelect).filter(RotationSelect.is_select == 1)
     if querys.count() != 0:
         data = dumps(querys.all())
         return jsonify({
@@ -21,7 +21,7 @@ def rotation():
             "msg": "获取轮播图数据成功",
             "data": {
                 "urls": data,
-                'state':select.first().name
+                'state': select.first().name
             }
         })
     else:
@@ -72,7 +72,7 @@ def cheapgoods():
             })
     else:
         if querys.count() != 0:
-            data = random.choices(dumps(querys.all()),k=int(count))
+            data = random.choices(dumps(querys.all()), k=int(count))
             return jsonify({
                 "status": 200,
                 "msg": "获取指定数量打折商品数据成功",
@@ -86,22 +86,18 @@ def cheapgoods():
                 "msg": "暂无数据"
             })
 
+
 @home_blue.route("/search/", methods=("POST",))
 def search():
     data = request.get_json()
-    print(data)
     search_str = data["search"]
-    f_g,f_d,f_h = desc_table()
-    goods,doctor,hostipal = make_sql(f_g,f_d,f_h,search_str)
+    goods, doctor, hostipal = make_sql(search_str)
     return jsonify({
-        'status':200,
-        'msg':"查询成功",
-        "data":{
-            "goods":goods,
-            "doctor":doctor,
-            "hospital":hostipal,
+        'status': 200,
+        'msg': "查询成功",
+        "data": {
+            "goods": goods,
+            "doctor": doctor,
+            "hospital": hostipal,
         }
     })
-
-
-

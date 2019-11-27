@@ -9,6 +9,15 @@ Base = declarative_base()
 metadata = Base.metadata
 
 
+class Authdeatil(Base):
+    __tablename__ = 'authdeatil'
+
+    detail_id = Column(Integer, primary_key=True)
+    auth_deatil1 = Column(String(50))
+    auth_detail = Column(String(50))
+    auth_id = Column(Integer)
+
+
 class Cart(Base):
     __tablename__ = 'carts'
 
@@ -68,6 +77,14 @@ class Doctor(Base):
     room = relationship('Room', primaryjoin='Doctor.room_id == Room.room_id', backref='doctors')
 
 
+class Explain(Base):
+    __tablename__ = 'explain'
+
+    id = Column(Integer, primary_key=True)
+    english = Column(String(20), nullable=False)
+    chinese = Column(String(20), nullable=False)
+
+
 class FollowDoc(Base):
     __tablename__ = 'follow_doc'
 
@@ -106,23 +123,6 @@ class Good(Base):
     allow_num = Column(String(20))
     imgs = Column(String(512))
     introduce_img = Column(String(100))
-
-
-class GoodsOld(Base):
-    __tablename__ = 'goods_old'
-
-    goods_id = Column(Integer, primary_key=True)
-    goods_name = Column(String(50))
-    url = Column(String(256), nullable=False)
-    price = Column(Float, nullable=False)
-    medtype = Column(Integer, nullable=False)
-    standards = Column(String(30), nullable=False)
-    detial = Column(String(1000))
-    product_num = Column(String(20))
-    normal_name = Column(String(50))
-    allow_num = Column(String(20))
-    imgs = Column(String(256))
-    introduce_img = Column(String(45))
 
 
 class Hospital(Base):
@@ -262,6 +262,7 @@ class Userauth(Base):
     id = Column(Integer, primary_key=True)
     userid = Column(Integer)
     auth = Column(Integer)
+    name = Column(String(20))
 
 
 class User(Base):
@@ -272,3 +273,13 @@ class User(Base):
     u_password = Column(String(50), nullable=False)
     u_tel = Column(String(11), nullable=False, unique=True)
     u_image = Column(String(256))
+
+
+class UserInfo(User):
+    __tablename__ = 'user_info'
+
+    u_id = Column(ForeignKey('users.id'), primary_key=True)
+    u_height = Column(Float, nullable=False)
+    u_weight = Column(Float, nullable=False)
+    u_sex = Column(Integer, nullable=False)
+    u_relname = Column(String(50))

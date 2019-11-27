@@ -10,7 +10,7 @@ from db.serializers import dumps
 from settings import BASE_DIR
 from common.file import change_filename, base64_to_bytes, save_file
 from common.token_ import new_token
-from models import User, UserAddres, FollowGood, FollowDoc
+from models import User, UserAddres, FollowGood, FollowDoc, Good, Doctor, UserInfo
 from common.encrypt import encode4md5
 import db
 from flask import Blueprint, jsonify, request
@@ -387,21 +387,27 @@ def follow_goods():
             'msg': '请求参数错误'
         })
     else:
-        query = db.session.query(FollowGood).filter(FollowGood.u_id==u_id,FollowGood.goods_id==g_id)
-        if query.count() == 0:
-            new_follow_goods = FollowGood(u_id=u_id, goods_id=g_id)
-            db.session.add(new_follow_goods)
-            db.session.commit()
-            return jsonify({
-                'status': 200,
-                'msg': "关注药品成功"
-            })
+        query_good = db.session.query(Good).filter(Good.goods_id==g_id)
+        if query_good.count !=0:
+            query = db.session.query(FollowGood).filter(FollowGood.u_id==u_id,FollowGood.goods_id==g_id)
+            if query.count() == 0:
+                new_follow_goods = FollowGood(u_id=u_id, goods_id=g_id)
+                db.session.add(new_follow_goods)
+                db.session.commit()
+                return jsonify({
+                    'status': 200,
+                    'msg': "关注药品成功"
+                })
+            else:
+                return jsonify({
+                    'status':300,
+                    'msg': "该用户已关注该商品"
+                })
         else:
             return jsonify({
-                'status':300,
-                'msg': "该用户已关注该商品"
+                "status": 500,
+                "msg":"关注失败，商品不存在"
             })
-
 
 # 用户取消关注药品接口
 @user_blue.route('/disfollow_goods/', methods=('POST',))
@@ -442,21 +448,27 @@ def follow_doctor():
             'msg': '请求参数错误'
         })
     else:
-        query = db.session.query(FollowDoc).filter(FollowDoc.u_id == u_id, FollowDoc.d_id == d_id)
-        if query.count() == 0:
-            new_follow_doctor = FollowDoc(u_id=u_id, d_id=d_id)
-            db.session.add(new_follow_doctor)
-            db.session.commit()
-            return jsonify({
-                'status': 200,
-                'msg': "关注医生成功"
-            })
+        query_doctor = db.session.query(Doctor).filter(Doctor.d_id==d_id)
+        if query_doctor.count()!=0:
+            query = db.session.query(FollowDoc).filter(FollowDoc.u_id == u_id, FollowDoc.d_id == d_id)
+            if query.count() == 0:
+                new_follow_doctor = FollowDoc(u_id=u_id, d_id=d_id)
+                db.session.add(new_follow_doctor)
+                db.session.commit()
+                return jsonify({
+                    'status': 200,
+                    'msg': "关注医生成功"
+                })
+            else:
+                return jsonify({
+                    'status': 300,
+                    'msg': "该用户已关注该医生"
+                })
         else:
             return jsonify({
-                'status': 300,
-                'msg': "该用户已关注该医生"
+                "status":500,
+                "msg":"关注失败，医生不存在"
             })
-
 # 用户取消关注医生接口
 @user_blue.route('/disfollow_doctor/', methods=('POST',))
 def disfollow_doctor():
@@ -537,4 +549,35 @@ def follow_alldoctors():
             return jsonify({
                 'status':300,
                 'msg':"该用户暂未关注任何医生"
+            })
+
+# 用户添加信息的接口
+@user_blue.route('/add_info/', methods=('POST',))
+def add_info():
+    try:
+        req_data = request.get_json()
+        u_id = req_data["u_id"]
+        u_name = req_data["u_name"]
+        u_sex = req_data["u_sex"]
+        u_height = req_data["u_height"]
+        u_weight = req_data["u_weight"]
+    except:
+        return jsonify({
+            "status":400,
+            "msg":"请求参数错误"
+        })
+    else:
+        query = db.session.query(UserInfo).filter(UserInfo.u_id==u_id)
+        if query.count()!=0:
+            new_info = UserInfo(u_id=u_id,u_height=u_height,u_weight=u_weight,u_name=u_name,u_sex=u_sex)
+            db.session.add(new_info)
+            db.session.commit()
+            return jsonify({
+                "status":200,
+                "msg": "添加用户详细信息成功"
+            })
+        else:
+            return jsonify({
+                "status":300,
+                "msg":"记录已存在"
             })

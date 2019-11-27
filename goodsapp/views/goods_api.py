@@ -30,10 +30,16 @@ goods_blue = Blueprint("goods_blue", __name__)
 @goods_blue.route('/goodstype/', methods=("GET",))
 def all_goods_types():
     query_medtype = db.session.query(Medtype)
-    qyery_goods = db.session.query(Good)
-    if all((query_medtype.count() != 0, qyery_goods.count() != 0)):
+    query_goods = db.session.query(Good)
+    if all((query_medtype.count() != 0, query_goods.count() != 0)):
         goods_type = dumps(query_medtype.all())
-        all_goods = dumps(qyery_goods.all())
+        all_goods = dumps(query_goods.all())
+        for _good in all_goods:
+            img_list = []
+            imgs_str = _good["imgs"]
+            for img_url in imgs_str.split(","):
+                img_list.append(img_url)
+            _good['imgs'] = img_list
         return jsonify({
             "status": 200,
             "msg": "获取所有商品类型成功",
