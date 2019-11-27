@@ -52,8 +52,8 @@ def make_sql(str):
 
 def package_search(gs, ds, hs, ):
     g = ["goods_id", "goods_name"]
-    d = ["h_id", "hname"]
-    h = ["d_id", "d_name"]
+    d = ["d_id", "d_name"]
+    h = ["h_id", "hname"]
     goods = []
     doctor = []
     hostipal = []

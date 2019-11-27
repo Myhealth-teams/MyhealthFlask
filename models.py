@@ -4,7 +4,6 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.schema import FetchedValue
 from sqlalchemy.ext.declarative import declarative_base
 
-
 Base = declarative_base()
 metadata = Base.metadata
 
@@ -27,7 +26,7 @@ class Cart(Base):
     c_goods_num = Column(Integer, nullable=False)
     c_is_selected = Column(Integer, nullable=False)
 
-    goods = relationship('Good', primaryjoin='Cart.goods_id == Good.goods_id', backref='carts')
+    goods = relationship('Good', lazy="immediate", primaryjoin='Cart.goods_id == Good.goods_id', backref='carts')
     u = relationship('User', primaryjoin='Cart.u_id == User.id', backref='carts')
 
 
@@ -49,7 +48,8 @@ class DiscountGood(Base):
     discount = Column(Float, nullable=False)
     new_price = Column(Float)
 
-    goods = relationship('Good', lazy="immediate", primaryjoin='DiscountGood.goods_id == Good.goods_id', backref='discount_goods')
+    goods = relationship('Good', lazy="immediate", primaryjoin='DiscountGood.goods_id == Good.goods_id',
+                         backref='discount_goods')
 
 
 class DjangoMigration(Base):
@@ -103,7 +103,8 @@ class FollowGood(Base):
     u_id = Column(ForeignKey('users.id'), index=True)
     goods_id = Column(ForeignKey('goods.goods_id'), index=True)
 
-    goods = relationship('Good', lazy="immediate", primaryjoin='FollowGood.goods_id == Good.goods_id', backref='follow_goods')
+    goods = relationship('Good', lazy="immediate", primaryjoin='FollowGood.goods_id == Good.goods_id',
+                         backref='follow_goods')
     u = relationship('User', primaryjoin='FollowGood.u_id == User.id', backref='follow_goods')
 
 
@@ -253,7 +254,8 @@ class UserAddres(Base):
 
     city = relationship('City', primaryjoin='UserAddres.cityid == City.cityid', backref='user_address')
     user = relationship('User', primaryjoin='UserAddres.id == User.id', backref='user_address')
-    province = relationship('Province', primaryjoin='UserAddres.provinceid == Province.provinceid', backref='user_address')
+    province = relationship('Province', primaryjoin='UserAddres.provinceid == Province.provinceid',
+                            backref='user_address')
 
 
 class Userauth(Base):

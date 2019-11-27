@@ -1,7 +1,11 @@
+import datetime
+import uuid
+
 from flask import Blueprint, request, jsonify
 import db
+from db.serializers import dumps
 
-from models import Cart
+from models import Cart, Orderlist
 
 shopcar_blue = Blueprint("shopcar_blue", __name__)
 
@@ -73,18 +77,52 @@ def sub_cart():
                 'msg': "删除购物车失败"
             })
 
-# 用户下单的接口
-@shopcar_blue.route('/order/',methods=("POST",))
-def go_order():
+# 获取用户购物车所有商品
+@shopcar_blue.route('/cart_allgoods/',methods=("POST",))
+def cart_allgoods():
     try:
-        request_data = request.get_json()
-        u_id = request_data["u_id"]
-        g_id = request_data["goods_id"]
-
+        req_data = request.get_json()
+        u_id = req_data["u_id"]
     except:
         return jsonify({
             'status': 400,
             'msg': '请求参数错误'
         })
     else:
-        pass
+        query = db.session.query(Cart).filter(Cart.u_id==u_id)
+        if query.count() !=0:
+            data = dumps(query.all())
+            return jsonify({
+                "status": 200,
+                "msg":"获取用户购物车成功",
+                "data":data
+            })
+        else:
+            return jsonify({
+                "status":300,
+                "msg": "用户购物车为空"
+            })
+
+# 用户下单的接口
+@shopcar_blue.route('/order/',methods=("POST",))
+def go_order():
+    try:
+        req_data = request.get_json()
+        u_id = req_data["u_id"]
+        g_id = req_data["goods_id"]
+        price = req_data["total_price"]
+        num = req_data["total_num"]
+    except:
+        return jsonify({
+            'status': 400,
+            'msg': '请求参数错误'
+        })
+    else:
+        now_time = datetime.datetime.now()
+        new_order = Orderlist(u_id=u_id,price=price,time=now_time,nums=num,state=0)
+        db.session.add(new_order)
+        db.session.commit()
+        return jsonify({
+            "status":200,
+            "msg":"添加订单成功"
+        })
