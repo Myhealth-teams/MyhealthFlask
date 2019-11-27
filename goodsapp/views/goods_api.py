@@ -97,6 +97,11 @@ def get_goods():
         query = db.session.query(Good).filter(Good.goods_id== g_id)
         if query.count() != 0:
             data = dumps(query.first())
+            img_list = []
+            imgs_str = data["imgs"]
+            for img_url in imgs_str.split(","):
+                img_list.append(img_url)
+            data['imgs'] = img_list
             return jsonify({
                 "status": 200,
                 "msg": "查询该分类所有商品成功",

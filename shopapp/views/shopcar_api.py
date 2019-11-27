@@ -73,9 +73,6 @@ def sub_cart():
                 'msg': "删除购物车失败"
             })
 
-#
-
-
 # 用户下单的接口
 @shopcar_blue.route('/order/',methods=("POST",))
 def go_order():
@@ -83,8 +80,11 @@ def go_order():
         request_data = request.get_json()
         u_id = request_data["u_id"]
         g_id = request_data["goods_id"]
+
     except:
         return jsonify({
             'status': 400,
             'msg': '请求参数错误'
         })
+    else:
+        pass

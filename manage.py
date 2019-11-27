@@ -7,9 +7,6 @@ from settings import HOST, PORT
 from mainapp.views import user_api
 from shopapp.views import shopcar_api
 
-
-
-
 def make_app():
     app.register_blueprint(user_api.user_blue, url_prefix='/user')
     app.register_blueprint(goods_api.goods_blue, url_prefix='/goods')
@@ -19,7 +16,6 @@ def make_app():
     CORS(app)
     return app
 
-application = app
-
+application = make_app()
 if __name__ == '__main__':
-    make_app().run(host=HOST, port=PORT)
+    application.run(host=HOST, port=PORT)
