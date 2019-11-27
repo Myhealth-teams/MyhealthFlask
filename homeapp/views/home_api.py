@@ -3,8 +3,9 @@ import random
 from flask import Blueprint, jsonify, request
 
 import db
+from db.db_util import desc_table, make_sql
 from db.serializers import dumps
-from models import Rotatiton, Infomation, DiscountGood, RotationSelect
+from models import Rotatiton, Infomation, DiscountGood, RotationSelect, Good
 
 home_blue = Blueprint("home_blue", __name__)
 
@@ -87,4 +88,20 @@ def cheapgoods():
 
 @home_blue.route("/search/", methods=("POST",))
 def search():
-    db.session.query()
+    data = request.get_json()
+    print(data)
+    search_str = data["search"]
+    f_g,f_d,f_h = desc_table()
+    goods,doctor,hostipal = make_sql(f_g,f_d,f_h,search_str)
+    return jsonify({
+        'status':200,
+        'msg':"查询成功",
+        "data":{
+            "goods":goods,
+            "doctor":doctor,
+            "hospital":hostipal,
+        }
+    })
+
+
+

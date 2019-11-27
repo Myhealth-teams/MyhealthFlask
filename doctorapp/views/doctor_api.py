@@ -94,3 +94,31 @@ def get_doctors():
                 'status': 300,
                 'msg': "暂无该科室医生数据"
             })
+
+# 获取医生详情
+@doctors_blue.route("/doctordetail/", methods=('POST',))
+def get_doctordetail():
+    try:
+        req_data = request.get_json()
+        r_id = req_data['d_id']
+    except:
+        return jsonify({
+            'status': 400,
+            'msg': "请求参数错误"
+        })
+    else:
+        query = db.session.query(Doctor).filter(Doctor.d_id == r_id)
+        if query.count() != 0:
+            data = dumps(query.all())
+            return jsonify({
+                'status': 200,
+                'msg': "获取医生详情成功",
+                'data': {
+                    'doctordetail': data
+                }
+            })
+        else:
+            return jsonify({
+                'status': 300,
+                'msg': "暂无该医生数据"
+            })
