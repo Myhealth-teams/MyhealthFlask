@@ -39,6 +39,7 @@ def get_hospitals():
                 'msg': "暂无该地区医院数据"
             })
 
+
 # 获取某医院所有科室的接口
 @doctors_blue.route("/rooms/", methods=('POST',))
 def get_rooms():
@@ -66,6 +67,7 @@ def get_rooms():
                 'status': 300,
                 'msg': "暂无该医院科室数据"
             })
+
 
 # 获取某科室所有医生的接口
 @doctors_blue.route("/doctors/", methods=('POST',))
@@ -95,6 +97,7 @@ def get_doctors():
                 'msg': "暂无该科室医生数据"
             })
 
+
 # 获取医生详情
 @doctors_blue.route("/doctordetail/", methods=('POST',))
 def get_doctordetail():
@@ -122,3 +125,27 @@ def get_doctordetail():
                 'status': 300,
                 'msg': "暂无该医生数据"
             })
+
+
+# 获取默认地区医院医生数据
+@doctors_blue.route('/default/', methods=("get",))
+def get_default():
+    hospital = db.session.query(Hospital).filter(Hospital.cityid == 110100).first()
+    room1 = db.session.query(Room).filter(Room.h_id==hospital.h_id)[1]
+    room0 = db.session.query(Room).filter(Room.h_id==hospital.h_id).first()
+    query0 = db.session.query(Doctor).filter(Doctor.room_id== room0.room_id)
+    query1 = db.session.query(Doctor).filter(Doctor.room_id== room1.room_id)
+    if any((query0.count() != 0,query1.count()!=0)):
+        data = dumps(query0.all()+query1.all())
+        return jsonify({
+            'status': 200,
+            'msg': "获取默认医生数据成功",
+            'data': {
+                'doctors': data
+            }
+        })
+    else:
+        return jsonify({
+            'status': 300,
+            'msg': "暂无医生数据"
+        })
