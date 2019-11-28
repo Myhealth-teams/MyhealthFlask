@@ -33,7 +33,7 @@ def all_goods_types():
     query_goods = db.session.query(Good)
     if all((query_medtype.count() != 0, query_goods.count() != 0)):
         goods_type = dumps(query_medtype.all())
-        all_goods = dumps(query_goods.limit(100))
+        all_goods = dumps(query_goods.limit(100).all())
         for _good in all_goods:
             img_list = []
             imgs_str = _good["imgs"]
