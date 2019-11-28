@@ -576,6 +576,7 @@ def add_info():
         u_sex = req_data["u_sex"]
         u_height = req_data["u_height"]
         u_weight = req_data["u_weight"]
+        print(req_data)
     except:
         return jsonify({
             "status": 400,

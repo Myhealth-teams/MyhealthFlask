@@ -277,14 +277,16 @@ class User(Base):
     u_image = Column(String(256))
 
 
+
 class UserInfo(User):
     __tablename__ = 'user_info'
 
+    ui_id = Column(Integer, nullable=False, unique=True)
     u_id = Column(ForeignKey('users.id'), primary_key=True)
     u_height = Column(Float, nullable=False)
     u_weight = Column(Float, nullable=False)
     u_sex = Column(Integer, nullable=False)
-    u_relname = Column(String(50))
+    u_relname = Column(Integer)
 
 
 class Forum(Base):
