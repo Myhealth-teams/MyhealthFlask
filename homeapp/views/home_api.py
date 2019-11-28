@@ -5,7 +5,7 @@ from flask import Blueprint, jsonify, request
 import db
 from db.db_util import make_sql
 from db.serializers import dumps
-from models import Rotatiton, Infomation, DiscountGood, RotationSelect, Good, Hospital
+from models import Rotatiton, Infomation, DiscountGood, RotationSelect, Good, Hospital, Notice
 
 home_blue = Blueprint("home_blue", __name__)
 
@@ -100,3 +100,20 @@ def search():
             "hospital": hostipal,
         }
     })
+
+# 获取主页公告信息的接口
+@home_blue.route("/notice/", methods=("GET",))
+def get_notice():
+    query = db.session.query(Notice).filter(Notice.is_use==True)
+    if query.count() != 0:
+        data = dumps(query.first())
+        return jsonify({
+            "status":200,
+            "msg":"获取公告信息成功",
+            "data":data
+        })
+    else:
+        return jsonify({
+            "status": 300,
+            "msg": "暂无公告信息"
+        })
