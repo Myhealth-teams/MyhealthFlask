@@ -4,6 +4,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.schema import FetchedValue
 from sqlalchemy.ext.declarative import declarative_base
 
+
 Base = declarative_base()
 metadata = Base.metadata
 
@@ -26,7 +27,7 @@ class Cart(Base):
     c_goods_num = Column(Integer, nullable=False)
     c_is_selected = Column(Integer, nullable=False)
 
-    goods = relationship('Good', lazy="immediate", primaryjoin='Cart.goods_id == Good.goods_id', backref='carts')
+    goods = relationship('Good', primaryjoin='Cart.goods_id == Good.goods_id', backref='carts')
     u = relationship('User', primaryjoin='Cart.u_id == User.id', backref='carts')
 
 
@@ -48,8 +49,7 @@ class DiscountGood(Base):
     discount = Column(Float, nullable=False)
     new_price = Column(Float)
 
-    goods = relationship('Good', lazy="immediate", primaryjoin='DiscountGood.goods_id == Good.goods_id',
-                         backref='discount_goods')
+    goods = relationship('Good', primaryjoin='DiscountGood.goods_id == Good.goods_id', backref='discount_goods')
 
 
 class DjangoMigration(Base):
@@ -77,14 +77,6 @@ class Doctor(Base):
     room = relationship('Room', primaryjoin='Doctor.room_id == Room.room_id', backref='doctors')
 
 
-class Explain(Base):
-    __tablename__ = 'explain'
-
-    id = Column(Integer, primary_key=True)
-    english = Column(String(20), nullable=False)
-    chinese = Column(String(20), nullable=False)
-
-
 class FollowDoc(Base):
     __tablename__ = 'follow_doc'
 
@@ -92,7 +84,7 @@ class FollowDoc(Base):
     u_id = Column(ForeignKey('users.id'), index=True)
     d_id = Column(ForeignKey('doctors.d_id'), index=True)
 
-    d = relationship('Doctor', lazy="immediate", primaryjoin='FollowDoc.d_id == Doctor.d_id', backref='follow_docs')
+    d = relationship('Doctor', primaryjoin='FollowDoc.d_id == Doctor.d_id', backref='follow_docs')
     u = relationship('User', primaryjoin='FollowDoc.u_id == User.id', backref='follow_docs')
 
 
@@ -103,9 +95,19 @@ class FollowGood(Base):
     u_id = Column(ForeignKey('users.id'), index=True)
     goods_id = Column(ForeignKey('goods.goods_id'), index=True)
 
-    goods = relationship('Good', lazy="immediate", primaryjoin='FollowGood.goods_id == Good.goods_id',
-                         backref='follow_goods')
+    goods = relationship('Good', primaryjoin='FollowGood.goods_id == Good.goods_id', backref='follow_goods')
     u = relationship('User', primaryjoin='FollowGood.u_id == User.id', backref='follow_goods')
+
+
+class Forum(Base):
+    __tablename__ = 'forum'
+
+    f_id = Column(Integer, primary_key=True, unique=True)
+    u_id = Column(ForeignKey('users.id'), index=True)
+    f_title = Column(String(100))
+    f_content = Column(String(1000))
+
+    u = relationship('User', primaryjoin='Forum.u_id == User.id', backref='forums')
 
 
 class Good(Base):
@@ -155,6 +157,17 @@ class Medtype(Base):
     medname = Column(String(50), nullable=False)
 
 
+class Notice(Base):
+    __tablename__ = 'notice'
+
+    n_id = Column(Integer, primary_key=True, unique=True)
+    s_id = Column(ForeignKey('sys_user.id'), index=True)
+    n_text = Column(String(100))
+    is_use = Column(Integer, nullable=False, server_default=FetchedValue())
+
+    s = relationship('SysUser', primaryjoin='Notice.s_id == SysUser.id', backref='notices')
+
+
 class Orderdetail(Base):
     __tablename__ = 'orderdetail'
 
@@ -181,6 +194,7 @@ class Orderlist(Base):
 
     a = relationship('UserAddres', primaryjoin='Orderlist.a_id == UserAddres.a_id', backref='orderlists')
     u = relationship('User', primaryjoin='Orderlist.u_id == User.id', backref='orderlists')
+
 
 class Province(Base):
     __tablename__ = 'province'
@@ -240,6 +254,14 @@ class SysUserRole(Base):
     role_id = Column(Integer)
 
 
+class Translate(Base):
+    __tablename__ = 'translate'
+
+    id = Column(Integer, primary_key=True)
+    english = Column(String(20), nullable=False)
+    chinese = Column(String(20), nullable=False)
+
+
 class UserAddres(Base):
     __tablename__ = 'user_address'
 
@@ -254,8 +276,7 @@ class UserAddres(Base):
 
     city = relationship('City', primaryjoin='UserAddres.cityid == City.cityid', backref='user_address')
     user = relationship('User', primaryjoin='UserAddres.id == User.id', backref='user_address')
-    province = relationship('Province', primaryjoin='UserAddres.provinceid == Province.provinceid',
-                            backref='user_address')
+    province = relationship('Province', primaryjoin='UserAddres.provinceid == Province.provinceid', backref='user_address')
 
 
 class Userauth(Base):
@@ -285,24 +306,3 @@ class UserInfo(User):
     u_weight = Column(Float, nullable=False)
     u_sex = Column(Integer, nullable=False)
     u_relname = Column(String(50))
-
-
-class Forum(Base):
-    __tablename__ = 'forum'
-
-    f_id = Column(Integer, primary_key=True, unique=True)
-    u_id = Column(ForeignKey('users.id'), index=True)
-    f_title = Column(String(100))
-    f_content = Column(String(1000))
-
-    u = relationship('User', lazy="immediate", primaryjoin='Forum.u_id == User.id', backref='forums')
-
-class Notice(Base):
-    __tablename__ = 'notice'
-
-    n_id = Column(Integer, primary_key=True, unique=True)
-    s_id = Column(ForeignKey('sys_user.id'), index=True)
-    n_text = Column(String(100))
-    is_use = Column(Integer, nullable=False, server_default=FetchedValue())
-
-    s = relationship('SysUser', primaryjoin='Notice.s_id == SysUser.id', backref='notices')

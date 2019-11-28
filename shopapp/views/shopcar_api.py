@@ -1,9 +1,11 @@
 import datetime
+import uuid
+
 from flask import Blueprint, request, jsonify
 import db
 from db.serializers import dumps
 
-from models import Cart, Orderlist, UserAddres, Orderdetail
+from models import Cart, Orderlist, UserAddres, Orderdetail, Good
 from settings import ORDERS_STATE_NOPAY
 
 shopcar_blue = Blueprint("shopcar_blue", __name__)
@@ -129,39 +131,48 @@ def go_order():
 
         req_data = request.get_json()
         u_id = req_data["u_id"]
-        price = req_data["price"]
-        num = req_data["nums"]
-        goods = req_data["goods"]
+        o_price = req_data["price"]
+        o_num = req_data["nums"]
+        o_goods = req_data["goods"]
     except:
         return jsonify({
             "status": 400,
             "msg": "请求参数错误"
         })
     else:
-        # 生成订单
-        now_time = datetime.datetime.now()
-        a_id = db.session.query(UserAddres).filter(UserAddres.id==u_id, UserAddres.is_default==True)
-        new_order = Orderlist(u_id=u_id, price=price, time=now_time, nums=num, state=ORDERS_STATE_NOPAY, a_id=a_id)
-        db.session.add(new_order)
-        db.session.commit()
-        # 生成订单详情
-        o_id = db.session.query(Orderlist).filter(u_id=u_id, price=price, time=now_time, nums=num, state=ORDERS_STATE_NOPAY, a_id=a_id).first().o_id
-        for good in goods:
-            g_id = good["goods_id"]
-            g_num = good["goods_num"]
-            new_order_detail = Orderdetail(o_id=o_id,goods_id=g_id,goods_num=g_num)
-            db.session.add(new_order_detail)
-        db.session.commit()
-        # 删除购物车记录
-        for good in goods:
-            g_id = good["goods_id"]
-            cart = db.session.query(Cart).filter(Cart.u_id==u_id,Cart.goods_id==g_id).first()
-            db.session.delete(cart)
-        db.session.commit()
-        return jsonify({
-            "status": 200,
-            "msg": "添加订单成功"
-        })
+        try:
+            # 生成订单
+            o_identifier = uuid.uuid4().hex
+            now_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            a_id = db.session.query(UserAddres).filter(UserAddres.id==u_id, UserAddres.is_default==True).first().a_id
+            new_order = Orderlist(o_identifier= o_identifier,u_id=u_id, o_price=o_price, o_time=now_time, o_nums=o_num, o_state=ORDERS_STATE_NOPAY, a_id=a_id)
+            db.session.add(new_order)
+            # db.session.commit()
+            # 生成订单详情
+            o_id = db.session.query(Orderlist).filter(Orderlist.o_identifier==o_identifier).first().o_id
+            for good in o_goods:
+                g_id = good["goods_id"]
+                g_num = good["goods_num"]
+                new_order_detail = Orderdetail(o_id=o_id,goods_id=g_id,goods_num=g_num)
+                db.session.add(new_order_detail)
+                # db.session.commit()
+                # 删除购物车记录
+                for good in o_goods:
+                    g_id = good["goods_id"]
+                    cart = db.session.query(Cart).filter(Cart.u_id==u_id,Cart.goods_id==g_id).first()
+                    db.session.delete(cart)
+        except:
+            db.session.rollback()
+            return jsonify({
+                "status": 500,
+                "msg": "添加订单失败"
+            })
+        else:
+            db.session.commit()
+            return jsonify({
+                "status": 200,
+                "msg": "添加订单成功"
+            })
 
 # 获取用户所有订单
 @shopcar_blue.route('/all_order/', methods=("POST",))
@@ -177,7 +188,18 @@ def get_all_order():
     else:
         query = db.session.query(Orderlist).filter(Orderlist.u_id==u_id)
         if query.count() !=0:
-            data = query.all()
+            all_order = dumps(query.all())
+            for order in all_order:
+                o_id = order["o_id"]
+                all_od = dumps(db.session.query(Orderdetail).filter(Orderdetail.o_id == o_id).all())
+                o_detail = []
+                for od in all_od:
+                    goods_id = od["goods_id"]
+                    goods = dumps(db.session.query(Good).filter(Good.goods_id==goods_id).first())
+                    od.update({"goods":goods})
+                    o_detail.append(od)
+                order.update({"order_detail": o_detail})
+            data = all_order
             return jsonify({
                 "status":200,
                 "msg":"获取用户所有订单成功",

@@ -361,8 +361,17 @@ def alter_address():
         query = db.session.query(UserAddres).filter(UserAddres.a_id == a_id)
         if query.count() != 0:
             addr = query.first()
-            addr.update({UserAddres.province: p_id, UserAddres.cityid: c_id, UserAddres.detail_address: d_addr,
-                         UserAddres.user_name: u_name, UserAddres.user_tel: u_tel, UserAddres.is_default: is_default})
+            if is_default == True:
+                default = db.session.query(UserAddres).filter(UserAddres.id == u_id,
+                                                              UserAddres.is_default == True).first()
+                default.is_default = False
+                db.session.commit()
+            addr.provinceid = p_id,
+            addr.cityid = c_id,
+            addr.detail_address = d_addr
+            addr.user_name = u_name
+            addr.user_tel = u_tel
+            addr.is_default = is_default
             db.session.commit()
             return jsonify({
                 'status': 200,
@@ -387,9 +396,9 @@ def follow_goods():
             'msg': '请求参数错误'
         })
     else:
-        query_good = db.session.query(Good).filter(Good.goods_id==g_id)
-        if query_good.count !=0:
-            query = db.session.query(FollowGood).filter(FollowGood.u_id==u_id,FollowGood.goods_id==g_id)
+        query_good = db.session.query(Good).filter(Good.goods_id == g_id)
+        if query_good.count != 0:
+            query = db.session.query(FollowGood).filter(FollowGood.u_id == u_id, FollowGood.goods_id == g_id)
             if query.count() == 0:
                 new_follow_goods = FollowGood(u_id=u_id, goods_id=g_id)
                 db.session.add(new_follow_goods)
@@ -400,14 +409,15 @@ def follow_goods():
                 })
             else:
                 return jsonify({
-                    'status':300,
+                    'status': 300,
                     'msg': "该用户已关注该商品"
                 })
         else:
             return jsonify({
                 "status": 500,
-                "msg":"关注失败，商品不存在"
+                "msg": "关注失败，商品不存在"
             })
+
 
 # 用户取消关注药品接口
 @user_blue.route('/disfollow_goods/', methods=('POST',))
@@ -448,8 +458,8 @@ def follow_doctor():
             'msg': '请求参数错误'
         })
     else:
-        query_doctor = db.session.query(Doctor).filter(Doctor.d_id==d_id)
-        if query_doctor.count()!=0:
+        query_doctor = db.session.query(Doctor).filter(Doctor.d_id == d_id)
+        if query_doctor.count() != 0:
             query = db.session.query(FollowDoc).filter(FollowDoc.u_id == u_id, FollowDoc.d_id == d_id)
             if query.count() == 0:
                 new_follow_doctor = FollowDoc(u_id=u_id, d_id=d_id)
@@ -466,9 +476,11 @@ def follow_doctor():
                 })
         else:
             return jsonify({
-                "status":500,
-                "msg":"关注失败，医生不存在"
+                "status": 500,
+                "msg": "关注失败，医生不存在"
             })
+
+
 # 用户取消关注医生接口
 @user_blue.route('/disfollow_doctor/', methods=('POST',))
 def disfollow_doctor():
@@ -520,9 +532,11 @@ def follow_allgoods():
             })
         else:
             return jsonify({
-                'status':300,
-                'msg':"该用户暂未关注任何商品"
+                'status': 300,
+                'msg': "该用户暂未关注任何商品"
             })
+
+
 # 获取用户所有关注的医生
 @user_blue.route('/follow_alldoctors/', methods=('POST',))
 def follow_alldoctors():
@@ -547,9 +561,10 @@ def follow_alldoctors():
             })
         else:
             return jsonify({
-                'status':300,
-                'msg':"该用户暂未关注任何医生"
+                'status': 300,
+                'msg': "该用户暂未关注任何医生"
             })
+
 
 # 用户添加信息的接口
 @user_blue.route('/add_info/', methods=('POST',))
@@ -563,21 +578,21 @@ def add_info():
         u_weight = req_data["u_weight"]
     except:
         return jsonify({
-            "status":400,
-            "msg":"请求参数错误"
+            "status": 400,
+            "msg": "请求参数错误"
         })
     else:
-        query = db.session.query(UserInfo).filter(UserInfo.u_id==u_id)
-        if query.count()!=0:
-            new_info = UserInfo(u_id=u_id,u_height=u_height,u_weight=u_weight,u_name=u_name,u_sex=u_sex)
+        query = db.session.query(UserInfo).filter(UserInfo.u_id == u_id)
+        if query.count() != 0:
+            new_info = UserInfo(u_id=u_id, u_height=u_height, u_weight=u_weight, u_name=u_name, u_sex=u_sex)
             db.session.add(new_info)
             db.session.commit()
             return jsonify({
-                "status":200,
+                "status": 200,
                 "msg": "添加用户详细信息成功"
             })
         else:
             return jsonify({
-                "status":300,
-                "msg":"记录已存在"
+                "status": 300,
+                "msg": "记录已存在"
             })
