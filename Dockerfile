@@ -3,6 +3,7 @@ MAINTAINER pighui pighui233@163.com
 WORKDIR /usr/src
 ADD . /usr/src/MyhealthFlask
 VOLUME /usr/src/MyhealthFlask/static
+WORKDIR /usr/src/MyhealthTornado
 RUN pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple
 RUN pip install gunicorn -i https://mirrors.aliyun.com/pypi/simple
 RUN chmod +x run.sh
