@@ -128,7 +128,7 @@ def get_doctordetail():
 
 
 # 获取默认地区医院医生数据
-@doctors_blue.route('/default/', methods=("get",))
+@doctors_blue.route('/default/', methods=("GET",))
 def get_default():
     hospital = db.session.query(Hospital).filter(Hospital.cityid == 110100).first()
     room1 = db.session.query(Room).filter(Room.h_id==hospital.h_id)[1]

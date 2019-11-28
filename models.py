@@ -285,3 +285,14 @@ class UserInfo(User):
     u_weight = Column(Float, nullable=False)
     u_sex = Column(Integer, nullable=False)
     u_relname = Column(String(50))
+
+
+class Forum(Base):
+    __tablename__ = 'forum'
+
+    f_id = Column(Integer, primary_key=True, unique=True)
+    u_id = Column(ForeignKey('users.id'), index=True)
+    f_title = Column(String(100))
+    f_content = Column(String(1000))
+
+    u = relationship('User', lazy="immediate", primaryjoin='Forum.u_id == User.id', backref='forums')

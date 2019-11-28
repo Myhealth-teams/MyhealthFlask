@@ -1,11 +1,10 @@
 import datetime
-import uuid
-
 from flask import Blueprint, request, jsonify
 import db
 from db.serializers import dumps
 
-from models import Cart, Orderlist
+from models import Cart, Orderlist, UserAddres, Orderdetail
+from settings import ORDERS_STATE_NOPAY
 
 shopcar_blue = Blueprint("shopcar_blue", __name__)
 
@@ -77,52 +76,115 @@ def sub_cart():
                 'msg': "删除购物车失败"
             })
 
+
 # 获取用户购物车所有商品
-@shopcar_blue.route('/cart_allgoods/',methods=("POST",))
+@shopcar_blue.route('/cart_allgoods/', methods=("POST",))
 def cart_allgoods():
     try:
         req_data = request.get_json()
         u_id = req_data["u_id"]
     except:
         return jsonify({
-            'status': 400,
-            'msg': '请求参数错误'
+            "status": 400,
+            "msg": "请求参数错误"
         })
     else:
-        query = db.session.query(Cart).filter(Cart.u_id==u_id)
-        if query.count() !=0:
+        query = db.session.query(Cart).filter(Cart.u_id == u_id)
+        if query.count() != 0:
             data = dumps(query.all())
             return jsonify({
                 "status": 200,
-                "msg":"获取用户购物车成功",
+                "msg": "获取用户购物车成功",
+                "data": data
+            })
+        else:
+            return jsonify({
+                "status": 300,
+                "msg": "用户购物车为空"
+            })
+
+
+
+# 生成订单
+        '''
+            {
+                "u_id": 6,
+                "price": 20,
+                "nums": 3,
+                "goods": [
+                    {
+                        "goods_id": 1,
+                        "goods_num": 1
+                    },
+                    {
+                        "goods_id": 2,
+                        "goods_num": 2
+                    }
+                ]
+            }
+        '''
+@shopcar_blue.route('/order/', methods=("POST",))
+def go_order():
+    try:
+
+        req_data = request.get_json()
+        u_id = req_data["u_id"]
+        price = req_data["price"]
+        num = req_data["nums"]
+        goods = req_data["goods"]
+    except:
+        return jsonify({
+            "status": 400,
+            "msg": "请求参数错误"
+        })
+    else:
+        # 生成订单
+        now_time = datetime.datetime.now()
+        a_id = db.session.query(UserAddres).filter(UserAddres.id==u_id, UserAddres.is_default==True)
+        new_order = Orderlist(u_id=u_id, price=price, time=now_time, nums=num, state=ORDERS_STATE_NOPAY, a_id=a_id)
+        db.session.add(new_order)
+        db.session.commit()
+        # 生成订单详情
+        o_id = db.session.query(Orderlist).filter(u_id=u_id, price=price, time=now_time, nums=num, state=ORDERS_STATE_NOPAY, a_id=a_id).first().o_id
+        for good in goods:
+            g_id = good["goods_id"]
+            g_num = good["goods_num"]
+            new_order_detail = Orderdetail(o_id=o_id,goods_id=g_id,goods_num=g_num)
+            db.session.add(new_order_detail)
+        db.session.commit()
+        # 删除购物车记录
+        for good in goods:
+            g_id = good["goods_id"]
+            cart = db.session.query(Cart).filter(Cart.u_id==u_id,Cart.goods_id==g_id).first()
+            db.session.delete(cart)
+        db.session.commit()
+        return jsonify({
+            "status": 200,
+            "msg": "添加订单成功"
+        })
+
+# 获取用户所有订单
+@shopcar_blue.route('/all_order/', methods=("POST",))
+def get_all_order():
+    try:
+        req_data = request.get_json()
+        u_id = req_data["u_id"]
+    except:
+        return jsonify({
+            "status": 400,
+            "msg": "请求参数错误"
+        })
+    else:
+        query = db.session.query(Orderlist).filter(Orderlist.u_id==u_id)
+        if query.count() !=0:
+            data = query.all()
+            return jsonify({
+                "status":200,
+                "msg":"获取用户所有订单成功",
                 "data":data
             })
         else:
             return jsonify({
                 "status":300,
-                "msg": "用户购物车为空"
+                "msg": "该用户暂无订单"
             })
-
-# 用户下单的接口
-@shopcar_blue.route('/order/',methods=("POST",))
-def go_order():
-    try:
-        req_data = request.get_json()
-        u_id = req_data["u_id"]
-        g_id = req_data["goods_id"]
-        price = req_data["total_price"]
-        num = req_data["total_num"]
-    except:
-        return jsonify({
-            'status': 400,
-            'msg': '请求参数错误'
-        })
-    else:
-        now_time = datetime.datetime.now()
-        new_order = Orderlist(u_id=u_id,price=price,time=now_time,nums=num,state=0)
-        db.session.add(new_order)
-        db.session.commit()
-        return jsonify({
-            "status":200,
-            "msg":"添加订单成功"
-        })
