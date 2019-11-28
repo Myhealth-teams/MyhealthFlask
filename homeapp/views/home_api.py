@@ -54,7 +54,6 @@ def info():
 def cheapgoods():
     count = request.args.get("count")
     querys = db.session.query(DiscountGood)
-    print(count)
     if not count:
         if querys.count() != 0:
             data = dumps(querys.all())
