@@ -315,12 +315,12 @@ class UserNotice(Base):
     __tablename__ = 'user_notice'
 
     un_id = Column(Integer, primary_key=True, unique=True)
-    u_id = Column(ForeignKey('users.id'), lazy="immediate", nullable=False, index=True)
+    u_id = Column(ForeignKey('users.id'), nullable=False, index=True)
     un_titile = Column(String(50), nullable=False)
     un_text = Column(String(100), nullable=False)
     un_time = Column(DateTime, nullable=False)
 
-    u = relationship('User', primaryjoin='UserNotice.u_id == User.id', backref='user_notices')
+    u = relationship('User', lazy="immediate", primaryjoin='UserNotice.u_id == User.id', backref='user_notices')
 
 class UserPaypal(Base):
     __tablename__ = 'user_paypal'
