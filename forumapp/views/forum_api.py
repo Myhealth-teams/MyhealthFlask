@@ -10,6 +10,7 @@ from models import Forum
 
 forum_blue = Blueprint("forum_blue", __name__)
 
+
 # 获取论坛所有信息的接口
 @forum_blue.route('/all/', methods=("GET",))
 def get_all():
@@ -17,15 +18,16 @@ def get_all():
     if query.count() != 0:
         data = dumps(query.all())
         return jsonify({
-            "status":200,
-            "msg":"获取所有帖子成功",
-            "data":data
+            "status": 200,
+            "msg": "获取所有帖子成功",
+            "data": data
         })
     else:
         return jsonify({
-            "status":300,
-            "msg":"暂无帖子数据"
+            "status": 300,
+            "msg": "暂无帖子数据"
         })
+
 
 # 用户发帖的接口
 @forum_blue.route('/send/', methods=("POST",))
@@ -41,10 +43,10 @@ def send():
             'msg': "请求参数错误"
         })
     else:
-        add_text = Forum(u_id=u_id,f_title=title,f_content=content)
+        add_text = Forum(u_id=u_id, f_title=title, f_content=content)
         db.session.add(add_text)
         db.session.commit()
         return jsonify({
-            "status":200,
-            "msg":"发送帖子成功",
+            "status": 200,
+            "msg": "发送帖子成功",
         })

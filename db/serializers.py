@@ -17,7 +17,7 @@
 # def _clear_state(instance: dict):
 #     instance.pop('_sa_instance_state')
 #     return instance
-#!/usr/bin/python3
+# !/usr/bin/python3
 # coding: utf-8
 from datetime import datetime
 

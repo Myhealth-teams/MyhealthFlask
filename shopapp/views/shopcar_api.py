@@ -105,9 +105,7 @@ def cart_allgoods():
                 "msg": "用户购物车为空"
             })
 
-
-
-# 生成订单
+        # 生成订单
         '''
             {
                 "u_id": 6,
@@ -125,6 +123,8 @@ def cart_allgoods():
                 ]
             }
         '''
+
+
 @shopcar_blue.route('/order/', methods=("POST",))
 def go_order():
     try:
@@ -144,22 +144,24 @@ def go_order():
             # 生成订单
             o_identifier = uuid.uuid4().hex
             now_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            a_id = db.session.query(UserAddres).filter(UserAddres.id==u_id, UserAddres.is_default==True).first().a_id
-            new_order = Orderlist(o_identifier= o_identifier,u_id=u_id, o_price=o_price, o_time=now_time, o_nums=o_num, o_state=ORDERS_STATE_NOPAY, a_id=a_id)
+            a_id = db.session.query(UserAddres).filter(UserAddres.id == u_id,
+                                                       UserAddres.is_default == True).first().a_id
+            new_order = Orderlist(o_identifier=o_identifier, u_id=u_id, o_price=o_price, o_time=now_time, o_nums=o_num,
+                                  o_state=ORDERS_STATE_NOPAY, a_id=a_id)
             db.session.add(new_order)
             # db.session.commit()
             # 生成订单详情
-            o_id = db.session.query(Orderlist).filter(Orderlist.o_identifier==o_identifier).first().o_id
+            o_id = db.session.query(Orderlist).filter(Orderlist.o_identifier == o_identifier).first().o_id
             for good in o_goods:
                 g_id = good["goods_id"]
                 g_num = good["goods_num"]
-                new_order_detail = Orderdetail(o_id=o_id,goods_id=g_id,goods_num=g_num)
+                new_order_detail = Orderdetail(o_id=o_id, goods_id=g_id, goods_num=g_num)
                 db.session.add(new_order_detail)
                 # db.session.commit()
                 # 删除购物车记录
                 for good in o_goods:
                     g_id = good["goods_id"]
-                    cart = db.session.query(Cart).filter(Cart.u_id==u_id,Cart.goods_id==g_id).first()
+                    cart = db.session.query(Cart).filter(Cart.u_id == u_id, Cart.goods_id == g_id).first()
                     db.session.delete(cart)
         except:
             db.session.rollback()
@@ -174,6 +176,7 @@ def go_order():
                 "msg": "添加订单成功"
             })
 
+
 # 获取用户所有订单
 @shopcar_blue.route('/all_order/', methods=("POST",))
 def get_all_order():
@@ -186,8 +189,8 @@ def get_all_order():
             "msg": "请求参数错误"
         })
     else:
-        query = db.session.query(Orderlist).filter(Orderlist.u_id==u_id)
-        if query.count() !=0:
+        query = db.session.query(Orderlist).filter(Orderlist.u_id == u_id)
+        if query.count() != 0:
             all_order = dumps(query.all())
             for order in all_order:
                 o_id = order["o_id"]
@@ -195,18 +198,18 @@ def get_all_order():
                 o_detail = []
                 for od in all_od:
                     goods_id = od["goods_id"]
-                    goods = dumps(db.session.query(Good).filter(Good.goods_id==goods_id).first())
-                    od.update({"goods":goods})
+                    goods = dumps(db.session.query(Good).filter(Good.goods_id == goods_id).first())
+                    od.update({"goods": goods})
                     o_detail.append(od)
                 order.update({"order_detail": o_detail})
             data = all_order
             return jsonify({
-                "status":200,
-                "msg":"获取用户所有订单成功",
-                "data":data
+                "status": 200,
+                "msg": "获取用户所有订单成功",
+                "data": data
             })
         else:
             return jsonify({
-                "status":300,
+                "status": 300,
                 "msg": "该用户暂无订单"
             })

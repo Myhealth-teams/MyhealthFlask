@@ -84,7 +84,7 @@ def get_doctors():
         query = db.session.query(Doctor).filter(Doctor.room_id == r_id)
         if query.count() != 0:
             data = dumps(query.all())
-            for i,doctor in enumerate(data):
+            for i, doctor in enumerate(data):
                 doctor.update({"d_index": i})
             return jsonify({
                 'status': 200,
@@ -133,12 +133,12 @@ def get_doctordetail():
 @doctors_blue.route('/default/', methods=("GET",))
 def get_default():
     hospital = db.session.query(Hospital).filter(Hospital.cityid == 110100).first()
-    room1 = db.session.query(Room).filter(Room.h_id==hospital.h_id)[1]
-    room0 = db.session.query(Room).filter(Room.h_id==hospital.h_id).first()
-    query0 = db.session.query(Doctor).filter(Doctor.room_id== room0.room_id)
-    query1 = db.session.query(Doctor).filter(Doctor.room_id== room1.room_id)
-    if any((query0.count() != 0,query1.count()!=0)):
-        data = dumps(query0.all()+query1.all())
+    room1 = db.session.query(Room).filter(Room.h_id == hospital.h_id)[1]
+    room0 = db.session.query(Room).filter(Room.h_id == hospital.h_id).first()
+    query0 = db.session.query(Doctor).filter(Doctor.room_id == room0.room_id)
+    query1 = db.session.query(Doctor).filter(Doctor.room_id == room1.room_id)
+    if any((query0.count() != 0, query1.count() != 0)):
+        data = dumps(query0.all() + query1.all())
         for i, doctor in enumerate(data):
             doctor.update({"d_index": i})
         return jsonify({

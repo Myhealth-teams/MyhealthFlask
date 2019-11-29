@@ -5,12 +5,12 @@
 from common import r15, r14
 
 
-def add_token(phone,token):
-    r15.set(phone,token)
+def add_token(phone, token):
+    r15.set(phone, token)
 
 
-def remove_token(token):
-    r15.delete(token)
+def remove_token(phone):
+    r15.delete(phone)
 
 
 def valid_token(token):
@@ -19,6 +19,7 @@ def valid_token(token):
         return True
     else:
         return False
+
 
 def get_token(phone):
     # 获取用户的token

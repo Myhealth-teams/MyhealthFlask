@@ -2,7 +2,7 @@
 # -*-coding:UTF-8-*-
 # __author__ = pighui
 # __time__ = 2019-11-20 上午9:25
-
+import datetime
 import uuid
 
 from common.cache import set_code, valid_code, get_code, remove_token, add_token
@@ -10,7 +10,7 @@ from db.serializers import dumps
 from settings import BASE_DIR
 from common.file import change_filename, base64_to_bytes, save_file
 from common.token_ import new_token
-from models import User, UserAddres, FollowGood, FollowDoc, Good, Doctor, UserInfo
+from models import User, UserAddres, FollowGood, FollowDoc, Good, Doctor, UserInfo, UserPaypal, UserNotice
 from common.encrypt import encode4md5
 import db
 from flask import Blueprint, jsonify, request
@@ -65,6 +65,11 @@ def register():
                     password = encode4md5(u_passwd)
                     new_user = User(u_tel=u_phone, u_password=password)
                     db.session.add(new_user)
+                    db.session.commit()
+                    # 初始化用户钱包
+                    u_id = db.session.query(User).filter(User.u_tel == u_phone).first().u_id
+                    new_pay = UserPaypal(u_id=u_id, up_balance=0)
+                    db.session.add(new_pay)
                     db.session.commit()
                     return jsonify({
                         'status': 200,
@@ -129,13 +134,14 @@ def login():
 def logout():
     try:
         req_data = request.get_json()
-        u_phone = req_data['u_tel']
+        u_id = req_data['u_id']
     except:
         return jsonify({
             'status': 400,
             'msg': '请求参数错误'
         })
     else:
+        u_phone = db.session.query(User).filter(User.id == u_id).first().u_tel
         remove_token(u_phone)
         return jsonify({
             'status': 200,
@@ -590,4 +596,42 @@ def add_info():
             return jsonify({
                 "status": 300,
                 "msg": "记录已存在"
+            })
+
+
+# 获取用户所有消息的接口
+@user_blue.route('/all_notice/', methods=('POST',))
+def get_allnotice():
+    try:
+        req_data = request.get_json()
+        u_id = req_data["u_id"]
+    except:
+        return jsonify({
+            "status": 400,
+            "msg": "请求参数错误"
+        })
+    else:
+        now = datetime.datetime.now().strftime("%H:%S")
+        new_notice1 = UserNotice(u_id=u_id, un_titile="尊敬的用户，您好！",
+                                 un_text="现推出充值赠送活动：充值100元赠送5元，充值1000元赠送60元！多充多得，心动不如行动！", un_time=now)
+        new_notice2 = UserNotice(u_id=u_id, un_titile="尊敬的用户，您好！",
+                                 un_text="您的账户于2019-11-28日22:30在广东省深圳市登录成功。如果不是本人登录，请及时修改密码如是本人登录，请忽略。", un_time=now)
+        new_notice3 = UserNotice(u_id=u_id, un_titile="尊敬的用户，您好！",
+                                 un_text="折扣商品已更新！今日特价：六味地黄胶囊 、茶碱缓释片 、辛伐他汀胶囊、精制银翘解毒片、气管炎橡胶膏。", un_time=now)
+        db.session.add_all([new_notice1, new_notice2, new_notice3])
+        db.session.commit()
+        query = db.session.query(UserNotice).filter(UserNotice.u_id == u_id)
+        if query.count() != 0:
+            data = dumps(query.all())
+            return jsonify({
+                "status": 200,
+                "msg": "获取用户所有消息成功",
+                "data": {
+                    "messages": data
+                }
+            })
+        else:
+            return jsonify({
+                "status": 300,
+                "msg": "该用户暂无消息"
             })

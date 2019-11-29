@@ -82,6 +82,7 @@ def choice():
                 "msg": "暂无数据",
             })
 
+
 # 获取某商品信息的接口
 @goods_blue.route('/goods_detail/', methods=("POST",))
 def get_goods():
@@ -94,7 +95,7 @@ def get_goods():
             'msg': '请求参数错误'
         })
     else:
-        query = db.session.query(Good).filter(Good.goods_id== g_id)
+        query = db.session.query(Good).filter(Good.goods_id == g_id)
         if query.count() != 0:
             data = dumps(query.first())
             img_list = []
