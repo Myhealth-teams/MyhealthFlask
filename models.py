@@ -278,15 +278,17 @@ class User(Base):
 
 
 
-class UserInfo(User):
+class UserInfo(Base):
     __tablename__ = 'user_info'
 
-    ui_id = Column(Integer, nullable=False, unique=True)
-    u_id = Column(ForeignKey('users.id'), primary_key=True)
+    ui_id = Column(Integer, primary_key=True, unique=True)
+    u_id = Column(ForeignKey('users.id'), nullable=False, index=True)
     u_height = Column(Float, nullable=False)
     u_weight = Column(Float, nullable=False)
     u_sex = Column(Integer, nullable=False)
-    u_relname = Column(Integer)
+    u_relname = Column(String(50), nullable=True)
+
+    u = relationship('User', primaryjoin='UserInfo.u_id == User.id', backref='user_infos')
 
 
 class Forum(Base):

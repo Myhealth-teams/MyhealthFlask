@@ -585,7 +585,7 @@ def add_info():
     else:
         query = db.session.query(UserInfo).filter(UserInfo.u_id == u_id)
         if query.count() == 0:
-            new_info = UserInfo(u_id=u_id, u_height=u_height, u_weight=u_weight, u_name=u_name, u_sex=u_sex)
+            new_info = UserInfo(u_id=u_id, u_height=u_height, u_weight=u_weight, u_relname=u_name, u_sex=u_sex)
             db.session.add(new_info)
             db.session.commit()
             return jsonify({
