@@ -116,12 +116,6 @@ def login():
                     'data': {
                         'user': data
                     }
-                    #     {
-                    #     'u_id': login_user.id,
-                    #     'u_name': login_user.u_name,
-                    #     'u_tel': login_user.u_tel,
-                    #     'u_image': login_user.u_image
-                    # }
                 })
             else:
                 return jsonify({

@@ -84,11 +84,13 @@ def get_doctors():
         query = db.session.query(Doctor).filter(Doctor.room_id == r_id)
         if query.count() != 0:
             data = dumps(query.all())
+            for i,doctor in enumerate(data):
+                doctor.update({"d_index": i})
             return jsonify({
                 'status': 200,
                 'msg': "获取该科室医生数据成功",
                 'data': {
-                    'rooms': data
+                    'doctors': data
                 }
             })
         else:
@@ -137,6 +139,8 @@ def get_default():
     query1 = db.session.query(Doctor).filter(Doctor.room_id== room1.room_id)
     if any((query0.count() != 0,query1.count()!=0)):
         data = dumps(query0.all()+query1.all())
+        for i, doctor in enumerate(data):
+            doctor.update({"d_index": i})
         return jsonify({
             'status': 200,
             'msg': "获取默认医生数据成功",

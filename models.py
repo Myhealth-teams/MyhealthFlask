@@ -310,3 +310,21 @@ class Notice(Base):
     is_use = Column(Integer, nullable=False, server_default=FetchedValue())
 
     s = relationship('SysUser', primaryjoin='Notice.s_id == SysUser.id', backref='notices')
+
+class UserNotice(Base):
+    __tablename__ = 'user_notice'
+
+    un_id = Column(Integer, primary_key=True, unique=True)
+    u_id = Column(ForeignKey('users.id'), index=True)
+    un_text = Column(String(100))
+
+    u = relationship('User', primaryjoin='UserNotice.u_id == User.id', backref='user_notices')
+
+class UserPaypal(Base):
+    __tablename__ = 'user_paypal'
+
+    up_id = Column(Integer, primary_key=True, unique=True)
+    u_id = Column(ForeignKey('users.id'), unique=True)
+    up_balance = Column(Float, server_default=FetchedValue())
+
+    u = relationship('User', primaryjoin='UserPaypal.u_id == User.id', backref='user_paypals')
