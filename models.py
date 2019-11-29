@@ -318,7 +318,7 @@ class UserNotice(Base):
     u_id = Column(ForeignKey('users.id'), nullable=False, index=True)
     un_titile = Column(String(50), nullable=False)
     un_text = Column(String(100), nullable=False)
-    un_time = Column(DateTime, nullable=False)
+    un_time = Column(String(10), nullable=False)
 
     u = relationship('User', lazy="immediate", primaryjoin='UserNotice.u_id == User.id', backref='user_notices')
 
