@@ -94,11 +94,6 @@ def cart_allgoods():
         query = db.session.query(Cart).filter(Cart.u_id == u_id)
         if query.count() != 0:
             data = dumps(query.all())
-            for _ in data:
-                if _["c_is_selected"] == 0:
-                    _["c_is_selected"] = "false"
-                else:
-                    _["c_is_selected"] = "true"
             return jsonify({
                 "status": 200,
                 "msg": "获取用户购物车成功",
