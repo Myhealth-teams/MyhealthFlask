@@ -59,20 +59,30 @@ def sub_cart():
     else:
         try:
             cart = db.session.query(Cart).filter(Cart.u_id == u_id, Cart.goods_id == g_id)
-            current_cart = cart.first()
-            if current_cart.c_goods_num > 1:
-                current_cart.c_goods_num -= 1
-                db.session.commit()
+            if cart.count() !=0:
+                current_cart = cart.first()
+                if current_cart.c_goods_num > 1:
+                    current_cart.c_goods_num -= 1
+                    db.session.commit()
+                    return jsonify({
+                        'status': 200,
+                        'msg': '购物车商品数量减少成功'
+                    })
+                else:
+                    db.session.delete(current_cart)
+                    db.session.commit()
+                    return jsonify({
+                        'status': 200,
+                        'msg': '删除购物车商品成功'
+                    })
             else:
-                db.session.delete(current_cart)
-                db.session.commit()
-            return jsonify({
-                'status': 200,
-                'msg': '删除购物车成功'
-            })
+                return jsonify({
+                    'status': 300,
+                    'msg': '购物车记录不存在'
+                })
         except:
             return jsonify({
-                'status': 300,
+                'status': 500,
                 'msg': "删除购物车失败"
             })
 
