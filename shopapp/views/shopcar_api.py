@@ -62,7 +62,6 @@ def sub_cart():
             current_cart = cart.first()
             if current_cart.c_goods_num > 1:
                 current_cart.c_goods_num -= 1
-                db.session.add(current_cart)
                 db.session.commit()
             else:
                 db.session.delete(current_cart)
