@@ -88,7 +88,7 @@ def sub_cart():
 
 # 删除购物车商品接口
 @shopcar_blue.route('/delcart/', methods=('POST',))
-def sub_cart():
+def del_cart():
     try:
         request_data = request.get_json()
         u_id = request_data["u_id"]
