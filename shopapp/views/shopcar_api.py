@@ -76,6 +76,39 @@ def sub_cart():
                 'msg': "删除购物车失败"
             })
 
+# 删除购物车商品接口
+@shopcar_blue.route('/delcart/', methods=('POST',))
+def sub_cart():
+    try:
+        request_data = request.get_json()
+        u_id = request_data["u_id"]
+        g_id = request_data["goods_id"]
+    except:
+        return jsonify({
+            'status': 400,
+            'msg': '请求参数错误'
+        })
+    else:
+        try:
+            cart = db.session.query(Cart).filter(Cart.u_id == u_id, Cart.goods_id == g_id)
+            if cart.count()!=0:
+                current_cart = cart.first()
+                db.session.delete(current_cart)
+                db.session.commit()
+                return jsonify({
+                    'status': 200,
+                    'msg': '删除购物车商品成功'
+                })
+            else:
+                return jsonify({
+                    'status': 300,
+                    'msg': '购物车记录不存在'
+                })
+        except:
+            return jsonify({
+                'status': 500,
+                'msg': "删除购物车商品失败"
+            })
 
 # 获取用户购物车所有商品
 @shopcar_blue.route('/cart_allgoods/', methods=("POST",))
