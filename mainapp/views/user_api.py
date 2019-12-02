@@ -611,17 +611,20 @@ def get_allnotice():
             "msg": "请求参数错误"
         })
     else:
-        now = datetime.datetime.now().strftime("%H:%S")
-        new_notice1 = UserNotice(u_id=u_id, un_titile="尊敬的用户，您好！",
-                                 un_text="现推出充值赠送活动：充值100元赠送5元，充值1000元赠送60元！多充多得，心动不如行动！", un_time=now)
-        new_notice2 = UserNotice(u_id=u_id, un_titile="尊敬的用户，您好！",
-                                 un_text="您的账户于2019-11-28日22:30在广东省深圳市登录成功。如果不是本人登录，请及时修改密码如是本人登录，请忽略。", un_time=now)
-        new_notice3 = UserNotice(u_id=u_id, un_titile="尊敬的用户，您好！",
-                                 un_text="折扣商品已更新！今日特价：六味地黄胶囊 、茶碱缓释片 、辛伐他汀胶囊、精制银翘解毒片、气管炎橡胶膏。", un_time=now)
-        db.session.add_all([new_notice1, new_notice2, new_notice3])
-        db.session.commit()
         query = db.session.query(UserNotice).filter(UserNotice.u_id == u_id)
-        if query.count() != 0:
+        if query.count() == 0:
+            now = datetime.datetime.now().strftime("%H:%S")
+            new_notice1 = UserNotice(u_id=u_id, un_titile="尊敬的用户，您好！",
+                                     un_text="现推出充值赠送活动：充值100元赠送5元，充值1000元赠送60元！多充多得，心动不如行动！", un_time=now)
+            new_notice2 = UserNotice(u_id=u_id, un_titile="尊敬的用户，您好！",
+                                     un_text="您的账户于2019-11-28日22:30在广东省深圳市登录成功。如果不是本人登录，请及时修改密码如是本人登录，请忽略。",
+                                     un_time=now)
+            new_notice3 = UserNotice(u_id=u_id, un_titile="尊敬的用户，您好！",
+                                     un_text="折扣商品已更新！今日特价：六味地黄胶囊 、茶碱缓释片 、辛伐他汀胶囊、精制银翘解毒片、气管炎橡胶膏。", un_time=now)
+            db.session.add_all([new_notice1, new_notice2, new_notice3])
+            db.session.commit()
+        query_data = db.session.query(UserNotice).filter(UserNotice.u_id == u_id)
+        if query_data.count() != 0:
             data = dumps(query.all())
             return jsonify({
                 "status": 200,
