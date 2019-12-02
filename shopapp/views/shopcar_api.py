@@ -33,7 +33,6 @@ def add_cart():
         else:
             current_cart = cart.first()
             current_cart.c_goods_num += 1
-            db.session.add(current_cart)
             db.session.commit()
         return jsonify({
             'status': 200,
